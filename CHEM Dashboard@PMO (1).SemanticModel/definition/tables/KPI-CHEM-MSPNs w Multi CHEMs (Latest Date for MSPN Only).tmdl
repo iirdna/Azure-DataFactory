@@ -1,0 +1,117 @@
+table 'KPI-CHEM-MSPNs w Multi CHEMs (Latest Date for MSPN Only)'
+	lineageTag: b9a1b4c3-856c-4348-81b2-d705cac09e9f
+
+	column BOM
+		dataType: string
+		lineageTag: 4c9036f5-15ab-480c-a257-9f49abab777e
+		summarizeBy: none
+		sourceColumn: BOM
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tier
+		dataType: int64
+		formatString: 0
+		lineageTag: 70c0c0aa-bc8c-4d47-8018-44c0bce8006d
+		summarizeBy: none
+		sourceColumn: Tier
+
+		annotation SummarizationSetBy = User
+
+	column ParentMSPN
+		dataType: string
+		lineageTag: 1764a7ae-5798-40d6-845a-4f266300abe4
+		summarizeBy: none
+		sourceColumn: ParentMSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column MSPN
+		dataType: string
+		lineageTag: a6b34405-577e-4c0d-994a-b3cb55b61b3d
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e/unit
+		dataType: double
+		lineageTag: 63c9f2b5-4c70-4a7f-a27f-54471d98939c
+		summarizeBy: none
+		sourceColumn: kgCO2e/unit
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PublishDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 299c3105-15f2-4045-a798-834f3c3f8c2f
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Uniq (MSPN+GWP) Count'
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d148a9e-3376-4b04-8c4b-7a33f0f85546
+		summarizeBy: none
+		sourceColumn: Uniq (MSPN+GWP) Count
+
+		annotation SummarizationSetBy = User
+
+	column kgCO2e/unit@NexusPPE
+		dataType: string
+		lineageTag: 9901dbb1-cbbb-4e6e-b4aa-3a083ccfd41d
+		summarizeBy: none
+		sourceColumn: kgCO2e/unit@NexusPPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column MappingSource@NexusPPE
+		dataType: string
+		lineageTag: e0da3b40-6ce4-4c96-939c-a2642bb6b7c9
+		summarizeBy: none
+		sourceColumn: MappingSource@NexusPPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublishDate@NexusPPE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6e31c4f1-f51e-44ca-be3e-16bc0256f31e
+		summarizeBy: none
+		sourceColumn: PublishDate@NexusPPE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'KPI-CHEM-MSPNs w Multi CHEMs (Latest Date for MSPN Only)' = m
+		mode: import
+		queryGroup: 'QC.GWP Anomalies@PPE'
+		source =
+				let
+				  Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+				    #"Filtered Rows" = Table.SelectRows(Source, each [MSPN] <> null and [kgCO2e] <> null and [Amount] <> 0 and [Amount]<> null),
+				    #"Added Custom" = Table.AddColumn(#"Filtered Rows", "kgCO2e/unit", each try if [Amount] = null or [Amount] = 0 then null else [kgCO2e]/[Amount] otherwise null, type number),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Added Custom",{"BOM", "Tier", "ParentMSPN", "MSPN", "kgCO2e/unit", "PublishDate"}),
+				    #"Rounded Off" = Table.TransformColumns(#"Removed Other Columns",{{"kgCO2e/unit", each Number.Round(_, 2), type number}}),
+				    #"Removed Dups [MSPN+GWP only]" = Table.Distinct(#"Rounded Off", {"MSPN", "kgCO2e/unit"}),
+				    #"Merged Queries" = Table.NestedJoin(#"Removed Dups [MSPN+GWP only]", {"MSPN"}, #"MSPNs w Latest GWP Dates but Multiple CHEM Values", {"MSPN"}, "KPI-CHEM-Latest MS Comp (MAX vs Nexus) (3)", JoinKind.Inner),
+				    #"Expanded KPI-CHEM-Latest MS Comp (MAX vs Nexus) (3)" = Table.ExpandTableColumn(#"Merged Queries", "KPI-CHEM-Latest MS Comp (MAX vs Nexus) (3)", {"Count"}, {"Uniq (MSPN+GWP) Count"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded KPI-CHEM-Latest MS Comp (MAX vs Nexus) (3)", {"MSPN"}, #"Dx-Part Att-GWPbyPart@NexusPPE", {"MSPN"}, "Dx-Nexus-GWPbyPart@NexusPPE", JoinKind.LeftOuter),
+				    #"Expanded Dx-Nexus-GWPbyPart@NexusPPE" = Table.ExpandTableColumn(#"Merged Queries1", "Dx-Nexus-GWPbyPart@NexusPPE", {"kgCO2e/unit", "MappingSource", "PublishDate"}, {"kgCO2e/unit@NexusPPE", "MappingSource@NexusPPE", "PublishDate@NexusPPE"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Expanded Dx-Nexus-GWPbyPart@NexusPPE", {"MSPN", "PublishDate"}, #"Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)", {"MSPN", "Max Publish Date"}, "Latest GWP Dates for MSPNs in Kelvin", JoinKind.Inner),
+				    #"Removed Other Columns1" = Table.SelectColumns(#"Merged Queries2",{"BOM", "Tier", "ParentMSPN", "MSPN", "kgCO2e/unit", "PublishDate", "Uniq (MSPN+GWP) Count", "kgCO2e/unit@NexusPPE", "MappingSource@NexusPPE", "PublishDate@NexusPPE"}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Removed Other Columns1", each not Text.StartsWith([MSPN], "GWP")),
+				    #"Sorted Rows" = Table.Sort(#"Filtered Rows1",{{"MSPN", Order.Ascending}, {"kgCO2e/unit", Order.Descending},{"PublishDate", Order.Descending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

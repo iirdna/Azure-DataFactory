@@ -1,0 +1,216 @@
+table 'Dx-Part Att-GWPbyPart@NexusPPE'
+	lineageTag: c411c3e6-ad75-49b9-ab01-b3561af59254
+
+	column MSPN
+		dataType: string
+		lineageTag: 66bb29e2-c41f-43ce-b5cf-00119988b180
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath
+		dataType: string
+		lineageTag: d6f90a62-17f7-4c25-9954-7e830d352fc2
+		summarizeBy: none
+		sourceColumn: ClassPath
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassLabel
+		dataType: string
+		lineageTag: faeaf134-4cc1-492d-b0ab-1e4b9ee74872
+		summarizeBy: none
+		sourceColumn: ClassLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartName
+		dataType: string
+		lineageTag: 55eba7e5-6537-4b97-b5f4-381054b322b0
+		summarizeBy: none
+		sourceColumn: PartName
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e/Unit
+		dataType: double
+		lineageTag: 48b87603-34a9-4c69-893f-202f14cb24c8
+		summarizeBy: none
+		sourceColumn: kgCO2e/Unit
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MappingSource
+		dataType: string
+		lineageTag: 87b7801f-048d-4c9d-8bde-1a9758377ef5
+		summarizeBy: none
+		sourceColumn: MappingSource
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublishDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4b192664-e6b3-495a-87cf-83ffa9b007c7
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ProcessorType
+		dataType: string
+		lineageTag: b13e31d6-d77c-47bc-ac54-eeb570934a5c
+		summarizeBy: none
+		sourceColumn: ProcessorType
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeploymentType
+		dataType: string
+		lineageTag: c38dd77f-331c-4b75-acfa-248e29bb3d9f
+		summarizeBy: none
+		sourceColumn: DeploymentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Role
+		dataType: string
+		lineageTag: 3ac0c9f4-2f21-414e-91bc-71a8957b98a4
+		summarizeBy: none
+		sourceColumn: Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subrole
+		dataType: string
+		lineageTag: d4b42f33-5940-425e-9ba7-b422c9b4b2ea
+		summarizeBy: none
+		sourceColumn: Subrole
+
+		annotation SummarizationSetBy = Automatic
+
+	column PowerLoadFifty
+		dataType: double
+		lineageTag: 682164a4-afc0-454c-bdde-4805e4e3815c
+		summarizeBy: none
+		sourceColumn: PowerLoadFifty
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Cores
+		dataType: double
+		lineageTag: dbd8375f-f965-4437-bad5-73d609b151ed
+		summarizeBy: none
+		sourceColumn: Cores
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column StorageCapacity
+		dataType: double
+		lineageTag: c3ef486f-ebdf-4ffb-ba10-9faca6c2c7ff
+		summarizeBy: none
+		sourceColumn: StorageCapacity
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column StorageCapacityUnit
+		dataType: string
+		lineageTag: 199251df-c2ed-47fa-bfd9-22d2e1f68667
+		summarizeBy: none
+		sourceColumn: StorageCapacityUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column MPN
+		dataType: string
+		lineageTag: e937b2ea-c6bb-4710-b27b-17ce4b684826
+		summarizeBy: none
+		sourceColumn: MPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column MPNRevisionNumber
+		dataType: string
+		lineageTag: 7ce049e0-fb10-4629-a7c0-dae0a68db351
+		summarizeBy: none
+		sourceColumn: MPNRevisionNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartManufacturers
+		dataType: string
+		lineageTag: c0652468-35a1-426d-9265-284618309011
+		summarizeBy: none
+		sourceColumn: PartManufacturers
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartType
+		dataType: string
+		lineageTag: 409b7a4a-d667-4a22-a614-28cda014c980
+		summarizeBy: none
+		sourceColumn: PartType
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaturityLevel
+		dataType: string
+		lineageTag: 7936a85b-2f9f-4d00-9664-24c0e67c95b3
+		summarizeBy: none
+		sourceColumn: MaturityLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column EmissionImpact
+		dataType: string
+		lineageTag: 883c3e39-bde7-4b80-b261-e0a0bd7f08eb
+		summarizeBy: none
+		sourceColumn: EmissionImpact
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateId
+		dataType: string
+		lineageTag: d5b4c6ef-46f7-40f8-b072-20e97f08c4e3
+		summarizeBy: none
+		sourceColumn: DateId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-Part Att-GWPbyPart@NexusPPE' = m
+		mode: import
+		queryGroup: 'Nexus+BR Data'
+		source =
+				let
+				    Source = #"RQ, Nexus PPE",
+				    HwCarbonEmissionsByPart = Source{[Name="HwCarbonEmissionsByPart"]}[Data],
+				    #"Duplicated Column" = Table.DuplicateColumn(HwCarbonEmissionsByPart, "ClassPathItemType", "ClassPathItemType2"),
+				    #"Split Column by Delimiter" = Table.SplitColumn(#"Duplicated Column", "ClassPathItemType2", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"ClassPathItemType2.1", "ClassLabel"}),
+				    #"Extracted Date" = Table.TransformColumns(#"Split Column by Delimiter",{{"ReportPublishedDate", DateTime.Date, type date}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Extracted Date",{{"ClassPathItemType", "ClassPath"}, {"ReportPublishedDate", "PublishDate"}, {"GWP_FossilPerUnit", "kgCO2e/Unit"}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Renamed Columns",{"MSPN", "ClassPath", "ClassLabel", "PartName", "kgCO2e/Unit", "MappingSource", "PublishDate", "ProcessorType", "DeploymentType", "Role", "Subrole", "PowerLoadFifty", "Cores", "StorageCapacity", "StorageCapacityUnit", "MPN", "MPNRevisionNumber", "PartManufacturers", "PartType", "MaturityLevel", "EmissionImpact", "DateId"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns",{{"MSPN", type text}, {"ClassPath", type text}, {"ClassLabel", type text}, {"PartName", type text}, {"MappingSource", type text}, {"ProcessorType", type text}, {"DeploymentType", type text}, {"Role", type text}, {"Subrole", type text}, {"StorageCapacityUnit", type text}, {"MPN", type text}, {"MPNRevisionNumber", type text}, {"PartManufacturers", type text}, {"PartType", type text}, {"MaturityLevel", type text}, {"EmissionImpact", type text}, {"DateId", type text}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"MSPN", Text.Trim, type text}, {"ClassPath", Text.Trim, type text}, {"ClassLabel", Text.Trim, type text}, {"PartName", Text.Trim, type text}, {"MappingSource", Text.Trim, type text}, {"ProcessorType", Text.Trim, type text}, {"DeploymentType", Text.Trim, type text}, {"Role", Text.Trim, type text}, {"Subrole", Text.Trim, type text}, {"StorageCapacityUnit", Text.Trim, type text}, {"MPN", Text.Trim, type text}, {"MPNRevisionNumber", Text.Trim, type text}, {"PartManufacturers", Text.Trim, type text}, {"PartType", Text.Trim, type text}, {"MaturityLevel", Text.Trim, type text}, {"EmissionImpact", Text.Trim, type text}, {"DateId", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"MSPN", Text.Clean, type text}, {"ClassPath", Text.Clean, type text}, {"ClassLabel", Text.Clean, type text}, {"PartName", Text.Clean, type text}, {"MappingSource", Text.Clean, type text}, {"ProcessorType", Text.Clean, type text}, {"DeploymentType", Text.Clean, type text}, {"Role", Text.Clean, type text}, {"Subrole", Text.Clean, type text}, {"StorageCapacityUnit", Text.Clean, type text}, {"MPN", Text.Clean, type text}, {"MPNRevisionNumber", Text.Clean, type text}, {"PartManufacturers", Text.Clean, type text}, {"PartType", Text.Clean, type text}, {"MaturityLevel", Text.Clean, type text}, {"EmissionImpact", Text.Clean, type text}, {"DateId", Text.Clean, type text}}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Cleaned Text","NA",null,Replacer.ReplaceValue,{"MSPN", "ClassPath", "ClassLabel", "PartName", "MappingSource", "MaturityLevel", "StorageCapacityUnit", "ProcessorType", "DeploymentType", "Role", "Subrole", "MPN", "MPNRevisionNumber", "PartManufacturers", "PartType", "EmissionImpact", "DateId"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","",null,Replacer.ReplaceValue,{"MSPN", "ClassPath", "ClassLabel", "PartName", "MappingSource", "MaturityLevel", "StorageCapacityUnit", "ProcessorType", "DeploymentType", "Role", "Subrole", "MPN", "MPNRevisionNumber", "PartManufacturers", "PartType", "EmissionImpact", "DateId"}),
+				    #"Replaced Value3" = Table.ReplaceValue(#"Replaced Value2","<missing>",null,Replacer.ReplaceValue,{"MSPN", "ClassPath", "ClassLabel", "PartName", "MappingSource", "MaturityLevel", "StorageCapacityUnit", "ProcessorType", "DeploymentType", "Role", "Subrole", "MPN", "MPNRevisionNumber", "PartManufacturers", "PartType", "EmissionImpact", "DateId"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Replaced Value3", {"MSPN"})
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

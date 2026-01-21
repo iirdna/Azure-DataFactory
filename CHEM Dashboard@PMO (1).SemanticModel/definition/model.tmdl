@@ -1,0 +1,125 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup RQs
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'MSPN Lists'
+
+	annotation PBI_QueryGroupOrder = 7
+
+queryGroup 'Latest CHEM Values from All Sources'
+
+	annotation PBI_QueryGroupOrder = 5
+
+queryGroup 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_QueryGroupOrder = 11
+
+queryGroup 'Last Refresh Dates'
+
+	annotation PBI_QueryGroupOrder = 6
+
+queryGroup 'OnePDM Data\Class+Chars@1PDM'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'PO Data+HW#'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup 'PO Data+HW#\PO Data, FY25'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'QC.GWP Anomalies@PPE'
+
+	annotation PBI_QueryGroupOrder = 9
+
+queryGroup 'Nexus+BR Data\Part Type Impacts@BR'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'Makersite Data'
+
+	annotation PBI_QueryGroupOrder = 4
+
+queryGroup 'PO Data+HW#\PO Data, FY20-24'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 'QC.HW# (PO vs HWIS)'
+
+	annotation PBI_QueryGroupOrder = 8
+
+queryGroup 'OnePDM Data'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'OnePDM Data\ipc File Mapping@1PDM'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 'OnePDM Data\Rack Chars@1PDM'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'Nexus+BR Data'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 'Nexus+BR Data\Rack Data@PPE'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'PO Data+HW#\HW#'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup APM
+
+	annotation PBI_QueryGroupOrder = 19
+
+annotation PBI_QueryOrder = ["RQ, CHEM Data","RQ, Nexus PPE","RQ, MAXDWPRD","RQ, BR PRD","RQ, HWIS Inv, FY20+","RQ, POs for FY20-24@CHEM Data Folder","Submitted to CELA FY20-24, FY+MSPN+Count+MTCO2e_Spend","RQ, FY25 POs@PO UAT@Nexus PPE (ALL Timekeys)","CharacteristicMaster@OnePDM","Dx-Part Att-ClassMaster@OnePDM","Dx-Part Att-Class&Char@OnePDM","Rack Data@GWPReport@Nexus PPE (Only T0)","Rack Data@GWPReport@Nexus PPE (Only T0 & In PBook)","KPI-Racks-GWP Comp of T0 & T1 for Racks@Nexus PPE","MSPNs@FY20-25POs","MSPNs@FY25PO UAT@Nexus PPE","MSPNs@Planning MRP","Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)","Dx-MS-Makersite Exports@MAX SQL Summary","Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)","Dx-Date-PO UAT@PPE Last Published","Dx-Date-Makersite@MAX Publish Dates","Dx-Date-AssemblyFinal@BR Last Published","Dx-Date-GWPbyPart@PPE Last Published","Dx-Date-PMO DB Last Updated","Latest TimeKey for PO UAT@Nexus PPE","Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]","Submitted to CELA FY25, MSPN+Count+MTCO2e_Spend","MSPNs+PO#@FY20-25POs@CHEM & PPE","Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT","FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT","KPI-HW#-PO vs HWIS","FY20-25 HWCount by Selected Class & Yr@HWInv","KPI-CHEM-GWPbyPart@NexusPPE","Dx-Part Att-HIP/LIP@BR","Dx-Part Att-GWPbyPart@NexusPPE","Dx-Summary Stats-PartGWP@Nexus PPE","[DONT REFRESH] Dx, RackGWP, GWP by BOM Breakdown@BR UAT (In PBook)","RQ, HIP/LIP-Data@PM@BR","ZeroPartTypeImpact@BR","HIP/LIP-Data@PM@BR, TMP","KPI-HW#-PO vs HWIS [pivot]","KPI-CHEM-MSPNs w Multi CHEMs (Latest Date for MSPN Only)","KPI-CHEM-MAX vs Nexus","[MANUAL, TMP] CHEM@SME","CHEM@MAX","CHEM@BR","CHEM@PPE","Dx-CHEM-Latest GWPs from All Sources [FDT]","Dx-CHEM-Latest GWPs from All Sources [pivot]","Unique MSPNs w CHEM@SME","Unique MSPNs w CHEM@MAX","Unique MSPNs w CHEM@PPE","Unique MSPNs w CHEM@BR","MSPNswithNonNullNonZeroCHEM","GWPbyPart@NexusPPE","List, NonLeafMSPNs@PPE","List, ZeroPartTypeImpact@BR","MSPNs from Planning MRP","MSPNs@FY25PO UAT+MRP","KPI-AssemblyCompleteness","KPI-CHEM-Gap, PO MSPNs w/o CHEM (vs Latest CHEMs)","Parts from All Levels of BOMs for PO MSPNs (from Report@BR PRD)","KPI-CHEM-Gap, BOM Parts of PO MSPNs w/o CHEM (vs Latest CHEMs)","Dx-CHEM-IPC Details for MSPNs Needing CHEM","Part_Alias@OnePDM","Manufacturer_Part@OnePDM","Manufacturer@OnePDM","ipcFileMapping@OnePDM","Parts@OnePDM","PartCharVals@OnePDM","PartCharLabels@OnePDM","Dx-Part Att-Char Vals for All Racks@OnePDM","MSPNs w Latest GWP Dates but Multiple CHEM Values","TopParentMSPN@AssemblyReport@BR","Dx-Lists-Unique Parts Across All BOM Levels of PO MSPNs","BOM Structure & Counts@BR","Dx-HW#-Fleet Level","ConversionTable","Selected Chars","SelectedClassAndChars","RQ, MAXDWPRD@SQL Server","PartCharLabels@OnePDM [FILTERED]","CharsForAllFleetParts","Backup, Original CHEM@SME","Backup, Parts from All Levels of BOMs for PO MSPNs (from Report@PPE Nexus) (2)","DX-BOM Structure & Counts for PO25@BR","NQ for PO Data","RQ, Nexus PRD"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table 'Dx-Part Att-Class&Char@OnePDM'
+ref table 'Dx-Part Att-HIP/LIP@BR'
+ref table 'Dx-Part Att-GWPbyPart@NexusPPE'
+ref table 'Dx-Summary Stats-PartGWP@Nexus PPE'
+ref table 'Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]'
+ref table 'Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)'
+ref table 'Dx-MS-Makersite Exports@MAX SQL Summary'
+ref table 'Dx-Date-PO UAT@PPE Last Published'
+ref table 'Dx-Date-Makersite@MAX Publish Dates'
+ref table 'Dx-Date-AssemblyFinal@BR Last Published'
+ref table 'Dx-Date-GWPbyPart@PPE Last Published'
+ref table 'Dx-Date-PMO DB Last Updated'
+ref table 'Dx-CHEM-Latest GWPs from All Sources [FDT]'
+ref table 'Dx-CHEM-Latest GWPs from All Sources [pivot]'
+ref table 'KPI-HW#-PO vs HWIS'
+ref table KPI-CHEM-GWPbyPart@NexusPPE
+ref table 'KPI-HW#-PO vs HWIS [pivot]'
+ref table 'KPI-CHEM-Gap, PO MSPNs w/o CHEM (vs Latest CHEMs)'
+ref table 'KPI-CHEM-Gap, BOM Parts of PO MSPNs w/o CHEM (vs Latest CHEMs)'
+ref table 'KPI-Racks-GWP Comp of T0 & T1 for Racks@Nexus PPE'
+ref table 'Dx-CHEM-IPC Details for MSPNs Needing CHEM'
+ref table 'KPI-CHEM-MSPNs w Multi CHEMs (Latest Date for MSPN Only)'
+ref table 'KPI-CHEM-MAX vs Nexus'
+ref table 'Dx-Lists-Unique Parts Across All BOM Levels of PO MSPNs'
+ref table 'Dx-Part Att-ClassMaster@OnePDM'
+ref table 'Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT'
+ref table 'Dx-HW#-Fleet Level'
+ref table 'DX-BOM Structure & Counts for PO25@BR'
+
+ref cultureInfo en-US
+

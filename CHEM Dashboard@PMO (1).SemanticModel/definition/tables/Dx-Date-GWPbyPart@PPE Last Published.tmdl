@@ -1,0 +1,48 @@
+table 'Dx-Date-GWPbyPart@PPE Last Published'
+	lineageTag: 503b3ff7-b730-4aa1-853c-97d05803edef
+
+	column ReportPublishedDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b5a12de4-70c5-49fc-8bc2-80b49b7b6dfa
+		summarizeBy: none
+		sourceColumn: ReportPublishedDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DateID
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2a43b390-7cb4-44cf-a54d-35d1f01d97f8
+		summarizeBy: none
+		sourceColumn: DateID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Dx-Date-GWPbyPart@PPE Last Published' = m
+		mode: import
+		queryGroup: 'Last Refresh Dates'
+		source =
+				let
+				    Source = #"RQ, Nexus PPE",
+				    HwCarbonEmissionsByPart = Source{[Name="HwCarbonEmissionsByPart"]}[Data],
+				    #"Removed Duplicates" = Table.Distinct(HwCarbonEmissionsByPart, {"DateId", "ReportPublishedDate"}),
+				    #"Extracted Date" = Table.TransformColumns(#"Removed Duplicates",{{"ReportPublishedDate", DateTime.Date, type date}}),
+				    #"Split Column by Position" = Table.SplitColumn(#"Extracted Date", "DateId", Splitter.SplitTextByPositions({0, 4}, false), {"DateId.1", "DateId.2"}),
+				    #"Split Column by Position1" = Table.SplitColumn(#"Split Column by Position", "DateId.2", Splitter.SplitTextByPositions({0, 2}, false), {"DateId.2.1", "DateId.2.2"}),
+				    #"Added Custom" = Table.AddColumn(#"Split Column by Position1", "DateID", each Date.FromText([DateId.2.1]&"/"&[DateId.2.2]&"/"&[DateId.1])),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom",{{"DateID", type date}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Changed Type",{"ReportPublishedDate", "DateID"}),
+				    #"Sorted Rows" = Table.Sort(#"Removed Other Columns",{{"ReportPublishedDate", Order.Descending}}),
+				    #"Kept First Rows" = Table.FirstN(#"Sorted Rows",1)
+				in
+				    #"Kept First Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

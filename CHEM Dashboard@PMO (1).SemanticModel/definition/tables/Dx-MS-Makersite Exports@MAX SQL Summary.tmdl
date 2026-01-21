@@ -1,0 +1,42 @@
+table 'Dx-MS-Makersite Exports@MAX SQL Summary'
+	lineageTag: c6abd845-49c6-429f-8e4d-09517d65662b
+
+	column PublishDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4e63321d-a320-486f-8402-d36bdaadd9c7
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Count of Uniq MSPNs w CHEM<>null/0'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 2b0a941c-25ec-49e0-8b89-3c90f8ee6dee
+		summarizeBy: sum
+		sourceColumn: Count of Uniq MSPNs w CHEM<>null/0
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-MS-Makersite Exports@MAX SQL Summary' = m
+		mode: import
+		queryGroup: 'Makersite Data'
+		source =
+				let
+				    Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+				    #"Extracted Date" = Table.TransformColumns(Source,{{"PublishDate", DateTime.Date, type date}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Extracted Date", each ([MSPN] <> null) and [kgCO2e] <> null and [kgCO2e] <> 0),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"PublishDate", "MSPN"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+				    #"Grouped Rows" = Table.Group(#"Removed Duplicates", {"PublishDate"}, {{"Count of Uniq MSPNs w CHEM<>null/0", each Table.RowCount(_), Int64.Type}}),
+				    #"Sorted Rows" = Table.Sort(#"Grouped Rows",{{"PublishDate", Order.Descending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

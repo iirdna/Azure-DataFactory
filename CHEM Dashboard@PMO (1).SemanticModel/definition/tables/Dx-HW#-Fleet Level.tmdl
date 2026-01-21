@@ -1,0 +1,67 @@
+table 'Dx-HW#-Fleet Level'
+	lineageTag: 1575a674-e475-4871-a350-8db9d6631c72
+
+	column BOM
+		dataType: string
+		lineageTag: b8d6d8cb-6931-475a-b48c-490b3451b101
+		summarizeBy: none
+		sourceColumn: BOM
+
+		annotation SummarizationSetBy = Automatic
+
+	column POQuantity
+		dataType: double
+		lineageTag: f358c300-57d1-4495-9a1d-aa01cf19bab0
+		summarizeBy: sum
+		sourceColumn: POQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PartMSPN
+		dataType: string
+		lineageTag: 2ad13023-7f07-440b-98bd-f2109ad0ec6b
+		summarizeBy: none
+		sourceColumn: PartMSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column BOMQuantity
+		dataType: double
+		lineageTag: b3781fef-6bbd-423c-a922-661b5bfb472f
+		summarizeBy: sum
+		sourceColumn: BOMQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FiscalYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 704324eb-a3d5-4fe6-803e-78fe05486343
+		summarizeBy: sum
+		sourceColumn: FiscalYear
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-HW#-Fleet Level' = m
+		mode: import
+		queryGroup: 'PO Data+HW#'
+		source =
+				let
+				    Source = Table.NestedJoin(#"Submitted to CELA FY25, MSPN+Count+MTCO2e_Spend", {"MSPN"}, #"BOM Structure & Counts@BR", {"TopParentMSPN"}, "Dx-HW#-Fleet Level, (BOM+Leaf) MSPNs+(PO# x BOM#)@FY20-25PO+BR UATs", JoinKind.LeftOuter),
+				    #"Expanded Dx-HW#-Fleet Level, (BOM+Leaf) MSPNs+(PO# x BOM#)@FY20-25PO+BR UATs" = Table.ExpandTableColumn(Source, "Dx-HW#-Fleet Level, (BOM+Leaf) MSPNs+(PO# x BOM#)@FY20-25PO+BR UATs", {"PartMSPN", "BOMQuantity"}, {"PartMSPN.1", "BOMQuantity"}),
+				    #"Added Custom" = Table.AddColumn(#"Expanded Dx-HW#-Fleet Level, (BOM+Leaf) MSPNs+(PO# x BOM#)@FY20-25PO+BR UATs", "PartMSPN", each if [PartMSPN.1] = null or [PartMSPN.1] = "" then [MSPN] else [PartMSPN.1]),
+				    #"Replaced Value" = Table.ReplaceValue(#"Added Custom",null,1,Replacer.ReplaceValue,{"BOMQuantity"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Replaced Value",{{"MSPN", "BOM"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns",{"MTCO2e_Spend", "PartMSPN.1"}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Removed Columns",{"FiscalYear", "BOM", "POQuantity", "PartMSPN", "BOMQuantity"})
+				in
+				    #"Reordered Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

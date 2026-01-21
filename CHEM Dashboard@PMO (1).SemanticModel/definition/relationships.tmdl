@@ -1,0 +1,32 @@
+relationship AutoDetected_288bad06-0170-4714-bc5f-e36a4700e3a0
+	fromColumn: 'Dx-Part Att-GWPbyPart@NexusPPE'.MSPN
+	toColumn: 'Dx-CHEM-Latest GWPs from All Sources [pivot]'.MSPN
+
+relationship AutoDetected_2266061c-6b78-45d0-b422-525d60464afd
+	fromColumn: 'Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)'.MSPN
+	toColumn: 'Dx-CHEM-Latest GWPs from All Sources [pivot]'.MSPN
+
+relationship AutoDetected_de4969cf-64c6-4bb7-9766-ee0cf5d807c9
+	fromColumn: 'Dx-CHEM-Latest GWPs from All Sources [FDT]'.MSPN
+	toColumn: 'Dx-CHEM-Latest GWPs from All Sources [pivot]'.MSPN
+
+relationship AutoDetected_935fb2d4-5b57-48db-b448-ff3338a31194
+	fromColumn: 'Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT'.ClassPath
+	toColumn: 'Dx-Part Att-ClassMaster@OnePDM'.ClassPath
+
+relationship AutoDetected_7327c0ab-2926-4987-b3c3-8c4970115c2e
+	fromColumn: 'Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT'.MSPN
+	toColumn: 'Dx-CHEM-Latest GWPs from All Sources [pivot]'.MSPN
+
+relationship AutoDetected_4d256455-085a-4fe4-ad7e-41d9c7188e34
+	fromColumn: 'Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT'.MSPN
+	toColumn: KPI-CHEM-GWPbyPart@NexusPPE.MSPN
+
+relationship AutoDetected_d6c042b4-7dcf-4a1c-804e-c0a3fa4287f0
+	fromColumn: 'Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT'.MSPN
+	toColumn: 'Dx-Lists-Unique Parts Across All BOM Levels of PO MSPNs'.MSPN
+
+relationship AutoDetected_a89c3de0-a5ea-4378-af13-ba86c57a18cd
+	fromColumn: 'Dx-HW#-Fleet Level'.PartMSPN
+	toColumn: 'DX-BOM Structure & Counts for PO25@BR'.PartMSPN
+

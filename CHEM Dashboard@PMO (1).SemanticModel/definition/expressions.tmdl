@@ -1,0 +1,983 @@
+expression 'RQ, MAXDWPRD' =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd")
+		in
+		    Source
+	lineageTag: 2b35182f-dc88-4bb7-84ba-d8b39fdba86c
+	queryGroup: RQs
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression 'RQ, Nexus PPE' =
+		let
+		    Source = AzureDataExplorer.Contents("https://nexuscoreppe.westus.kusto.windows.net", "Nexus", null, [MaxRows=10000000000, MaxSize=10000000000, NoTruncate=true, AdditionalSetStatements=null])
+		in
+		    Source
+	lineageTag: dec9fe8d-f736-4ab0-9169-385b7aed834e
+	queryGroup: RQs
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression CharacteristicMaster@OnePDM =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [id] as [Characteristic.ID],#(lf)    [LABEL] as [Characteristic.Label],#(lf)    [CHARACTERISTIC_VALUE_TYPE] as [Characteristic.ValueType],#(lf)    [VALUE_UNIT_OF_MEASURE] as [Characteristic.UOM]#(lf)from [DesignODS].[Innovator_Item_Characteristic] as [$Table]"])
+		in
+		    Source
+	lineageTag: 0edf8ca0-9b26-4d99-9ed0-274c21a20d19
+	queryGroup: 'OnePDM Data\Class+Chars@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'RQ, CHEM Data' =
+		let
+		    Source = Folder.Contents("C:\Users\arashsaboori\OneDrive - Microsoft\Arash\Projects\CHEM\CHEM Data")
+		in
+		    Source
+	lineageTag: c0183fa1-5bc8-4b6d-896b-800ed19dd6d0
+	queryGroup: RQs
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Rack Data@GWPReport@Nexus PPE (Only T0)' =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsReport"]}[Data],
+		    #"Filtered Rows" = Table.SelectRows(HwCarbonEmissionsReport, each Text.Contains([ClassPathItemType], "Rack Assembly") and Text.Contains([ClassPathItemType], "Rack System") and [Tier] = 0),
+		    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"GWP_FossilPerUnit", "kgCO2e/Unit"}, {"ReportPublishedDate", "PublishDate"}}),
+		    #"Duplicated Column" = Table.DuplicateColumn(#"Renamed Columns", "ClassPathItemType", "ClassPathItemType2"),
+		    #"Split Column by Delimiter" = Table.SplitColumn(#"Duplicated Column", "ClassPathItemType2", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"ClassPathItemType2.1", "ClassLabel"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Split Column by Delimiter",{"MSPN", "Role", "Subrole", "SKUFamilyName", "DeploymentType", "ProcessorType", "Generation", "ClassPathItemType", "ClassLabel", "kgCO2e/Unit", "MappingSource", "RackCompletenessScore", "PublishDate"}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns",{{"MSPN", type text}, {"Role", type text}, {"Subrole", type text}, {"SKUFamilyName", type text}, {"DeploymentType", type text}, {"ProcessorType", type text}, {"Generation", type text}, {"ClassPathItemType", type text}, {"MappingSource", type text}}),
+		    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"MSPN", Text.Trim, type text}, {"Role", Text.Trim, type text}, {"Subrole", Text.Trim, type text}, {"SKUFamilyName", Text.Trim, type text}, {"DeploymentType", Text.Trim, type text}, {"ProcessorType", Text.Trim, type text}, {"Generation", Text.Trim, type text}, {"ClassPathItemType", Text.Trim, type text}, {"MappingSource", Text.Trim, type text}}),
+		    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"MSPN", Text.Clean, type text}, {"Role", Text.Clean, type text}, {"Subrole", Text.Clean, type text}, {"SKUFamilyName", Text.Clean, type text}, {"DeploymentType", Text.Clean, type text}, {"ProcessorType", Text.Clean, type text}, {"Generation", Text.Clean, type text}, {"ClassPathItemType", Text.Clean, type text}, {"MappingSource", Text.Clean, type text}}),
+		    #"Replaced Value" = Table.ReplaceValue(#"Cleaned Text","NA",null,Replacer.ReplaceValue,{"MSPN", "Role", "Subrole", "SKUFamilyName", "DeploymentType", "ProcessorType", "Generation", "ClassPathItemType", "MappingSource"}),
+		    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","<missing>",null,Replacer.ReplaceValue,{"MSPN", "Role", "Subrole", "SKUFamilyName", "DeploymentType", "ProcessorType", "Generation", "ClassPathItemType", "MappingSource"}),
+		    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","",null,Replacer.ReplaceValue,{"MSPN", "Role", "Subrole", "SKUFamilyName", "DeploymentType", "ProcessorType", "Generation", "ClassPathItemType", "MappingSource"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Replaced Value2", {"MSPN"})
+		in
+		    #"Removed Duplicates"
+	lineageTag: bde812c7-7305-4015-a609-1f1179f9f592
+	queryGroup: 'Nexus+BR Data\Rack Data@PPE'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'MSPNs@FY25PO UAT@Nexus PPE' =
+		let
+		    Source = #"Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]",
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([MSPN] <> "") and ([MSPN] <> null)),
+		    MSPN = List.Distinct(#"Filtered Rows"[MSPN])
+		in
+		    MSPN
+	lineageTag: 49eb4acd-6983-48f5-a324-89783062e374
+	queryGroup: 'MSPN Lists'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression 'Rack Data@GWPReport@Nexus PPE (Only T0 & In PBook)' =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsReport"]}[Data],
+		    #"Added Custom" = Table.AddColumn(HwCarbonEmissionsReport, "In PBook", each if List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE",[BOM]) then 1 else 0),
+		    #"Filtered Rows" = Table.SelectRows(#"Added Custom", each Text.Contains([ClassPathItemType], "Rack Assembly") and Text.Contains([ClassPathItemType], "Rack System") and [Tier] = 0 and [In PBook] = 1),
+		    #"Duplicated Column" = Table.DuplicateColumn(#"Filtered Rows", "ClassPathItemType", "ClassPathItemTypeOrig"),
+		    #"Duplicated Column1" = Table.DuplicateColumn(#"Duplicated Column", "ClassPathItemTypeOrig", "ClassPathItemType2"),
+		    #"Extracted Date" = Table.TransformColumns(#"Duplicated Column1",{{"ReportPublishedDate", DateTime.Date, type date}}),
+		    #"Replaced Value2" = Table.ReplaceValue(#"Extracted Date","<missing>",null,Replacer.ReplaceValue,{"Generation"}),
+		    #"Replaced Value3" = Table.ReplaceValue(#"Replaced Value2","",null,Replacer.ReplaceValue,{"MSPN"}),
+		    #"Replaced Value4" = Table.ReplaceValue(#"Replaced Value3","/Part/","",Replacer.ReplaceText,{"ClassPathItemType"}),
+		    #"Split Column by Delimiter1" = Table.SplitColumn(#"Replaced Value4", "ClassPathItemType2", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"ClassPathItemType2.1", "PartLabel"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Split Column by Delimiter1",{"PartLabel", "MSPN", "GWP_FossilPerUnit", "MappingSource", "RackCompletenessScore", "ReportPublishedDate", "ClassPathItemTypeOrig", "ClassPathItemType", "DeploymentType", "Role", "Subrole", "Generation", "ProcessorType", "PowerLoadFifty", "SKUFamilyName", "PartName", "MaturityLevel"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+		    #"Split Column by Delimiter" = Table.SplitColumn(#"Removed Duplicates", "ClassPathItemType", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"ClassPathItemType.1", "ClassPathItemType.2", "ClassPathItemType.3", "ClassPathItemType.4"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Split Column by Delimiter",{{"ReportPublishedDate", "PublishDate"}, {"GWP_FossilPerUnit", "kgCO2e/Unit"}, {"Generation", "Gen"}, {"RackCompletenessScore", "CompletenessScore"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: 54314dd7-edd1-4dcf-9a13-684af796b093
+	queryGroup: 'Nexus+BR Data\Rack Data@PPE'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)' =
+		let
+		  Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([MSPN] <> null and [kgCO2e] <> null and [kgCO2e] <> 0 and [Amount] <> null and [Amount] <> 0)),
+		    #"Grouped Rows" = Table.Group(#"Filtered Rows", {"MSPN"}, {{"Max Publish Date", each List.Max([PublishDate]), type nullable datetime}})
+		in
+		    #"Grouped Rows"
+	lineageTag: 94041baf-f685-4786-8a14-e0e555f476db
+	queryGroup: 'Makersite Data'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'RQ, POs for FY20-24@CHEM Data Folder' =
+		let
+		    Source = #"RQ, CHEM Data",
+		    CELA = Source{[Name="CELA"]}[Content]
+		in
+		    CELA
+	lineageTag: 4e0437a6-0942-4435-a79f-0bf1ba0fefcd
+	queryGroup: 'PO Data+HW#\PO Data, FY20-24'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'RQ, FY25 POs@PO UAT@Nexus PPE (ALL Timekeys)' =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    PbookCELAPublished = Source{[Name="PbookCELAPublishedWithAllFields"]}[Data],
+		    #"Reordered Columns" = Table.ReorderColumns(PbookCELAPublished,{"TimeKey", "MappedFiscalYear", "MItemId", "POLineQuantity", "Fossil_kgCO2eq_PerUnit", "EmissionsInMetricTon", "SpendEmissions", "CHEMMethodology", "RackCompletenessScore", "CHEMReported_FiscalYear", "FiscalQuarter", "FiscalMonth", "Id", "TimeID", "OriginalPONumber", "PONumberUpdated", "OriginalPOLineItemNumberCustom", "POLineItemDescription", "POTitle", "PODescription", "LineItemDescription", "MSFriendlyName", "MsfId", "POLineReceivedQuantity", "POLineShippedQuantity", "ExecOrgSummary", "IsCloudAndAI", "POStatus", "POLineStatus", "RequisitionClass", "CDPUVPFlag", "PaymentCategoryGroup", "Commodity", "Account", "ISOCurrencyCode", "UNSPSC_CDP_Based_DefraCategory", "UNSPSC_CDP_Based_EmissionFactor_tCO2e_per_USD", "UNSPSC_CDP_Based_Scope3Category", "UNSPSC_CDP_Lookup_Level", "SupplierType", "UltimateSupplierParent", "RequisitionSubClass", "RequisitionType", "STDCategoryGroup", "STDCategoryName", "STDCategoryInference", "POStartDate", "POEndDate", "Fossil_kgCO2eq_PerUnit_Amortized_Months", "SAPCompanyCode", "SupplierID", "MicrosoftInvoiceNumber", "InternalOrderNumber", "STDCategoryID", "ProfitCenterCode", "AccountCode", "CommodityCode", "StandardCategoryID", "DIM_AccountID", "DIM_ClearingDateID", "DIM_CommodityID", "DIM_CurrencyID", "DIM_InternalOrderID", "DIM_OriginalPOLineID", "DIM_ProfitcenterID", "DIM_RequisitionClassID", "DIM_SAPCompanyID", "DIM_STDCategoryID", "DIM_SupplierID", "DIM_SupplierIDCC", "DIM_UltimateSupplierParentID"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Reordered Columns",{{"UNSPSC_CDP_Based_EmissionFactor_tCO2e_per_USD", "MTCO2e/USD"}, {"SpendEmissions", "MTCO2e_Spend"}, {"Fossil_kgCO2eq_PerUnit", "kgCO2e/unit"}, {"EmissionsInMetricTon", "MTCO2e_CHEM"}, {"MItemId", "MSPN"}, {"MappedFiscalYear", "FiscalYear"}, {"RackCompletenessScore", "RackConfidenceScore"}, {"UNSPSC_CDP_Based_DefraCategory", "DefraCategory"}, {"UNSPSC_CDP_Based_Scope3Category", "Scope3Category"}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Renamed Columns", each ([FiscalYear] = 2025))
+		in
+		    #"Filtered Rows"
+	lineageTag: 85615c10-518a-40de-924d-5ef47d2e9c58
+	queryGroup: 'PO Data+HW#\PO Data, FY25'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'RQ, HWIS Inv, FY20+' =
+		let
+		    Source = AzureDataExplorer.Contents("hwinventory", "hwinventory", "[""ITActiveAssets""]#(lf)| where ((((([""PONumber""] startswith_cs ""8"") or ([""PONumber""] startswith_cs ""008""))) or ([""PONumber""] startswith_cs ""43"")) and ((([""Created""]) > ((datetime(2019-07-01 00:00:00.0000000)))))) and (([""ItemType""] == (""Rack"")) and ([""DeviceState""] == (""Installed"")))#(lf)| extend [""Created2""]=[""Created""],[""t0_0""]=getyear([""Created""])#(lf)| project-away [""Created""]#(lf)| extend [""Created3""]=[""Created2""],[""t0_02""]=getmonth([""Created2""])#(lf)| project-away [""Created2""]#(lf)| extend [""FY""]=iff(([""t0_02""]) >= ((7)), tolong(([""t0_0""]) + ((1))), tolong([""t0_0""]))#(lf)| project-rename [""Year""] = [""t0_0""], [""Created""] = [""Created3""], [""Month""] = [""t0_02""]#(lf)| project [""Id""],[""ItemType""],[""Name""],[""Year""],[""CreatedBy""],[""ModifiedBy""],[""IsActive""],[""AssetTag""],[""SerialNumber""],[""IsAssetOnly""],[""DeploymentDate""],[""AuditState""],[""AuditModified""],[""Environment""],[""DeviceState""],[""DevicePowerRating""],[""DevicePowerSource""],[""ElectricalRedundancy""],[""LocationId""],[""Location""],[""ParentItemType""],[""ParentAssetTag""],[""FinancialItemNumber""],[""ItemSkuMSF""],[""SKUFinancialMasterID""],[""BomSkuMSF""],[""OpsModel""],[""Supplier""],[""CostCenter""],[""BOMAssetTag""],[""Tile""],[""SlotNumber""],[""Side""],[""BinNumber""],[""SubBinNumber""],[""PropertyDimension""],[""PropertyDimensionId""],[""BrhApplicationId""],[""PropertyGroup""],[""PropertyGroupId""],[""BrhPropertyGroupId""],[""BusinessDivisionName""],[""BusinessDivisionId""],[""OnlineBusinessName""],[""OnlineServiceName""],[""IsVirtual""],[""NetworkDeviceType""],[""IsFuseInstalled""],[""AssetUcnt""],[""AssetRUHeight""],[""AssetCapacityUCnt""],[""Model""],[""Manufacturer""],[""AssetHeight""],[""RackId""],[""Rack""],[""ContainerId""],[""Container""],[""DataCenterCode""],[""DataCenterFMId""],[""DataCenterName""],[""Colocation""],[""ColocationFMId""],[""ColocationZone""],[""ChassisId""],[""Chassis""],[""DataCenterLocation""],[""SKUName""],[""SKUNotes""],[""SKURUHeight""],[""ItemGroupName""],[""SKUClassPathItemType""],[""DiscreteSKUClassPathItemType""],[""DiscreteSKUName""],[""DiscreteSKUNotes""],[""DiscreteSKURUHeight""],[""DiscreteSkuId""],[""DiscreteSkuMSF""],[""MaxWarrantyDate""],[""ProjectId""],[""MdmId""],[""PONumber""],[""SecurityClassification""],[""IsSecure""],[""Notes""],[""Modified""],[""Month""],[""Created""],[""FY""]", [MaxRows=null, MaxSize=null, NoTruncate=null, AdditionalSetStatements=null])
+		in
+		    Source
+	lineageTag: 5ab19b48-32d4-4b01-9c44-7d7d278c05e9
+	queryGroup: RQs
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Latest TimeKey for PO UAT@Nexus PPE' =
+		let
+		    Source = #"RQ, FY25 POs@PO UAT@Nexus PPE (ALL Timekeys)",
+		    #"Removed Other Columns" = Table.SelectColumns(Source,{"TimeKey"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+		    #"Sorted Rows" = Table.Sort(#"Removed Duplicates",{{"TimeKey", Order.Descending}}),
+		    LatestPublishDate = #"Sorted Rows"{0}[TimeKey]
+		in
+		    LatestPublishDate
+	lineageTag: 9d0d8bea-07be-4c05-8f2b-f7c05e4c2045
+	queryGroup: 'PO Data+HW#\PO Data, FY25'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = DateTimeZone
+
+expression 'FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT' =
+		let
+		    Source = #"Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT",
+		    #"Filtered Rows" = Table.SelectRows(Source, each Text.Contains([ClassLabel], "Rack Assembly")),
+		    #"Grouped Rows" = Table.Group(#"Filtered Rows", {"FY", "ClassPath"}, {{"Count", each List.Sum([POQuantity]), type nullable Int64.Type}}),
+		    #"Added Custom" = Table.AddColumn(#"Grouped Rows", "Source", each "UAT", type text)
+		in
+		    #"Added Custom"
+	lineageTag: e01226ea-9fb4-4896-897e-65c4b2e9b802
+	queryGroup: 'QC.HW# (PO vs HWIS)'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'FY20-25 HWCount by Selected Class & Yr@HWInv' =
+		let
+		    Source = #"RQ, HWIS Inv, FY20+",
+		    #"Grouped Rows" = Table.Group(Source, {"FY", "SKUClassPathItemType"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Grouped Rows", each Text.Contains([SKUClassPathItemType], "Rack Assembly")),
+		    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"SKUClassPathItemType", "ClassPath"}}),
+		    #"Added Custom" = Table.AddColumn(#"Renamed Columns", "Source", each "HWIS", type text)
+		in
+		    #"Added Custom"
+	lineageTag: 28fd5bf6-fa9f-497a-b930-c4215b32d746
+	queryGroup: 'QC.HW# (PO vs HWIS)'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'RQ, BR PRD' =
+		let
+		    Source = AzureDataExplorer.Contents("https://kusto-csp-prd-wus3-01.westus3.kusto.windows.net/", "csp", null, [MaxRows=1000000000000, MaxSize=1000000000000, NoTruncate=true, AdditionalSetStatements=null])
+		in
+		    Source
+	lineageTag: 75420493-3c61-4a0a-9a90-2f6139ca44a0
+	queryGroup: RQs
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression ZeroPartTypeImpact@BR =
+		let
+		    Source = #"RQ, HIP/LIP-Data@PM@BR",
+		    #"Filtered Rows" = Table.SelectRows(Source, each ( [Impact] = "Zero")),
+		    PartItemClassPath = List.Distinct(#"Filtered Rows"[PartItemClassPath])
+		in
+		    PartItemClassPath
+	lineageTag: c21afd34-c9d2-4344-959a-b0f92fc072f9
+	queryGroup: 'Nexus+BR Data\Part Type Impacts@BR'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression 'Submitted to CELA FY20-24, FY+MSPN+Count+MTCO2e_Spend' =
+		let
+		    Source = #"RQ, POs for FY20-24@CHEM Data Folder",
+		    #"PublishedWithAdditionalFields (Prerana Shared), 04Oct2024 (CSV; GroupedByFY+MSPNCounts+MTCO2e) csv" = Source{[Name="PublishedWithAdditionalFields (Prerana Shared), 04Oct2024 (CSV; GroupedByFY+MSPNCounts+MTCO2e).csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"PublishedWithAdditionalFields (Prerana Shared), 04Oct2024 (CSV; GroupedByFY+MSPNCounts+MTCO2e) csv",[Delimiter=",", Columns=4, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"FiscalYear", Int64.Type}, {"MSPN", type text}, {"POQuantity", Int64.Type}, {"MTCO2e_Spend", type number}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each ([MSPN] <> null and [MSPN] <> ""))
+		in
+		    #"Filtered Rows"
+	lineageTag: ad6dbe8f-bebc-45fc-aa14-57b61719ef55
+	queryGroup: 'PO Data+HW#\PO Data, FY20-24'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Submitted to CELA FY25, MSPN+Count+MTCO2e_Spend' =
+		let
+		    Source = #"Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]",
+		    #"Removed Other Columns" = Table.SelectColumns(Source,{"FiscalYear", "MSPN", "POLineQuantity", "MTCO2e_Spend"}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns",{{"FiscalYear", Int64.Type}, {"POLineQuantity", Int64.Type}, {"MTCO2e_Spend", type number}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each ([MSPN] <> "" and [MSPN] <> null)),
+		    #"Grouped Rows" = Table.Group(#"Filtered Rows", {"FiscalYear", "MSPN"}, {{"POQuantity", each List.Sum([POLineQuantity]), type nullable number}, {"MTCO2e_Spend", each List.Sum([MTCO2e_Spend]), type nullable number}})
+		in
+		    #"Grouped Rows"
+	lineageTag: 453e5868-1f65-49b9-8fb7-d09fa0816c98
+	queryGroup: 'PO Data+HW#\PO Data, FY25'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression MSPNs@FY20-25POs =
+		let
+		    Source = Table.Combine({#"Submitted to CELA FY25, MSPN+Count+MTCO2e_Spend", #"Submitted to CELA FY20-24, FY+MSPN+Count+MTCO2e_Spend"}),
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([MSPN] <> "")),
+		    MSPN = List.Distinct(#"Filtered Rows"[MSPN])
+		in
+		    MSPN
+	lineageTag: 2408ac63-970c-4d73-ae3f-185a12b8c1ea
+	queryGroup: 'MSPN Lists'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression 'RQ, HIP/LIP-Data@PM@BR' =
+		let
+		    Source = #"RQ, BR PRD",
+		    PartTypeImpact = Source{[Name="PartTypeImpact"]}[Data]
+		in
+		    PartTypeImpact
+	lineageTag: 011c9e33-e154-4a34-bf14-b5fad2256e74
+	queryGroup: 'Nexus+BR Data\Part Type Impacts@BR'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'MSPNs w Latest GWP Dates but Multiple CHEM Values' =
+		let
+		  Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+		    #"Filtered Rows" = Table.SelectRows(Source, each [MSPN] <> null and [kgCO2e] <> null and [Amount] <> 0 and [Amount]<> null),
+		    #"Added Custom" = Table.AddColumn(#"Filtered Rows", "kgCO2e/unit", each try [kgCO2e]/[Amount] otherwise null, type number),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Added Custom",{"BOM", "MSPN", "kgCO2e/unit", "PublishDate"}),
+		    #"Rounded Off" = Table.TransformColumns(#"Removed Other Columns",{{"kgCO2e/unit", each Number.Round(_, 2), type number}}),
+		    #"Removed Dups [MSPN+GWP only]" = Table.Distinct(#"Rounded Off", {"MSPN", "kgCO2e/unit"}),
+		    #"Merged Queries" = Table.NestedJoin(#"Removed Dups [MSPN+GWP only]", {"MSPN", "PublishDate"}, #"Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)", {"MSPN", "Max Publish Date"}, "Latest GWP Dates for MSPNs in Kelvin", JoinKind.Inner),
+		    #"Expanded Latest GWP Dates for MSPNs in Kelvin" = Table.ExpandTableColumn(#"Merged Queries", "Latest GWP Dates for MSPNs in Kelvin", {"Max Publish Date"}, {"Max Publish Date"}),
+		    #"Grouped Rows" = Table.Group(#"Expanded Latest GWP Dates for MSPNs in Kelvin", {"MSPN", "Max Publish Date"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+		    #"Filtered Rows1" = Table.SelectRows(#"Grouped Rows", each ([Count] <> 1))
+		in
+		    #"Filtered Rows1"
+	lineageTag: 1234ca73-77cf-4a6a-825c-17ae5cd9ae16
+	queryGroup: 'Makersite Data'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression '[DONT REFRESH] Dx, RackGWP, GWP by BOM Breakdown@BR UAT (In PBook)' =
+		let
+		    Source = "***= #""RQ, BR UAT""",
+		    HwCarbonEmissionsReport = Source{[Name="AssemblyEmissionReports"]}[Data],
+		    #"Renamed Columns1" = Table.RenameColumns(HwCarbonEmissionsReport,{{"TopParentMSPN", "BOM"}, {"ParentMSPN", "ImmediateParentMSPN"}, {"PartMSPN", "MSPN"}, {"BOMQuantity", "Quantity"}, {"PartItemClassPath", "ClassPathItemType"}, {"DataSource", "MappingSource"}, {"PartDescription", "PartName"}}),
+		    #"Duplicated Column" = Table.DuplicateColumn(#"Renamed Columns1", "ClassPathItemType", "ClassPathItemType2"),
+		    #"Split Column by Delimiter" = Table.SplitColumn(#"Duplicated Column", "ClassPathItemType2", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"ClassPathItemType2.1", "PartType"}),
+		    #"Added Custom" = Table.AddColumn(#"Split Column by Delimiter", "In PBook?", each if List.Contains(#"MSPNs@FY20-25POs",[BOM]) then 1 else 0),
+		    #"Added Custom2" = Table.AddColumn(#"Added Custom", "Tier", each [BOMLevel]-1),
+		    #"Added Custom3" = Table.AddColumn(#"Added Custom2", "GWP_FossilPerUnit", each [PartEmission]/[Quantity]),
+		    #"Filtered Rows" = Table.SelectRows(#"Added Custom3", each ([#"In PBook?"] <> 0)),
+		    #"Filtered Rows1" = Table.SelectRows(#"Filtered Rows", each [Tier] < 6),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows1",{"BOM", "Tier", "PartEmission", "ImmediateParentMSPN", "MSPN", "Quantity", "GWP_FossilPerUnit", "MappingSource", "PartType", "ClassPathItemType", "PartName"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Other Columns",{{"BOM", "Rack MSPN"}, {"ImmediateParentMSPN", "PartParentMSPN"}, {"MSPN", "PartMSPN"}, {"PartEmission", "kgCO2eq"}}),
+		    #"Merged Queries" = Table.NestedJoin(#"Renamed Columns", {"Rack MSPN"}, #"Rack Data@GWPReport@Nexus PPE (Only T0 & In PBook)", {"MSPN"}, "Rack", JoinKind.LeftOuter),
+		    #"Expanded Rack" = Table.ExpandTableColumn(#"Merged Queries", "Rack", {"PartLabel", "kgCO2e/Unit", "MappingSource", "CompletenessScore", "DeploymentType", "Role", "Subrole", "Gen", "ProcessorType", "PowerLoadFifty", "SKUFamilyName"}, {"Rack.PartLabel", "Rack.kgCO2e/Unit", "Rack.MappingSource", "Rack.CompletenessScore", "Rack.DeploymentType", "Rack.Role", "Rack.Subrole", "Rack.Gen", "Rack.ProcessorType", "Rack.PowerLoadFifty", "Rack.SKUFamilyName"})
+		in
+		    #"Expanded Rack"
+	lineageTag: 21c2d70c-0df1-4861-8217-237f469f683a
+	queryGroup: 'Nexus+BR Data'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+
+expression '[MANUAL, TMP] CHEM@SME' =
+		let
+		    Source = #"RQ, CHEM Data",
+		    #"SME Override" = Source{[Name="SME Override"]}[Content],
+		    #"1.CSV Prep" = #"SME Override"{[Name="1.CSV Prep"]}[Content],
+		    #"ScaledPartEmissions, 18Aug2025 csv" = #"1.CSV Prep"{[Name="ScaledPartEmissions, 18Aug2025.csv"]}[Content],
+		    #"Imported CSV" = Csv.Document(#"ScaledPartEmissions, 18Aug2025 csv",[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Renamed Columns" = Table.RenameColumns(#"Promoted Headers",{{"PartEmission", "kgCO2e/Unit"}, {"PartMSPN", "MSPN"}}),
+		    #"Added Custom" = Table.AddColumn(#"Renamed Columns", "DataSource", each "SME", type text),
+		    #"Added Custom1" = Table.AddColumn(#"Added Custom", "GWPmethodology", each "SME Override"),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom1",{{"kgCO2e/Unit", type number}}),
+		    #"Removed Errors" = Table.RemoveRowsWithErrors(#"Changed Type", {"kgCO2e/Unit"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Removed Errors",{"MSPN", "kgCO2e/Unit", "GWPmethodology", "DataSource"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns", {"MSPN"})
+		in
+		    #"Removed Duplicates"
+	lineageTag: e6d41fa1-ce59-44d5-bbb6-7f3da1bbcf61
+	queryGroup: 'Latest CHEM Values from All Sources'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression CHEM@MAX =
+		let
+		  Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+		    #"Merged Queries" = Table.NestedJoin(Source, {"MSPN", "PublishDate"}, #"Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)", {"MSPN", "Max Publish Date"}, "Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)", JoinKind.Inner),
+		    #"Filtered Rows" = Table.SelectRows(#"Merged Queries", each ([MSPN] <> null) and [Amount] <> 0 and [Amount] <> "" and [Amount] <> null and [kgCO2e] <> 0 and [kgCO2e] <> "" and [kgCO2e] <> null),
+		    #"Removed Errors" = Table.RemoveRowsWithErrors(#"Filtered Rows", {"Amount", "kgCO2e"}),
+		    #"Added Custom" = Table.AddColumn(#"Removed Errors", "kgCO2e/Unit", each if [Amount] = 0 then null else [kgCO2e]/[Amount], type number),
+		    #"Grouped Rows" = Table.Group(#"Added Custom", {"MSPN", "PublishDate"}, {{"kgCO2e/Unit", each List.Max([#"kgCO2e/Unit"]), type number}}),
+		    #"Added Custom1" = Table.AddColumn(#"Grouped Rows", "DataSource", each "MS", type text),
+		    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "GWPmethodology", each "Makersite LCA", type text)
+		in
+		    #"Added Custom2"
+	lineageTag: e5e0b315-be19-4808-9e64-cb79c7518053
+	queryGroup: 'Latest CHEM Values from All Sources'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression CHEM@PPE =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    Nexus = Source{[Name="Nexus"]}[Data],
+		    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsByPart"]}[Data],
+		    #"Filtered Rows" = Table.SelectRows(HwCarbonEmissionsReport, each ([GWP_FossilPerUnit] <> null and [GWP_FossilPerUnit] <> "")),
+		    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"GWP_FossilPerUnit", "kgCO2e/Unit"}, {"ReportPublishedDate", "PublishDate"}, {"MappingSource", "GWPmethodology"}}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Renamed Columns",{"MSPN", "kgCO2e/Unit", "GWPmethodology", "PublishDate"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Removed Duplicates",{{"PublishDate", type date}}),
+		    #"Added Custom" = Table.AddColumn(#"Changed Type", "DataSource", each "PPE", type text)
+		in
+		    #"Added Custom"
+	lineageTag: 6caa43be-b1c0-4259-a58c-c275141ea763
+	queryGroup: 'Latest CHEM Values from All Sources'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression CHEM@BR =
+		let
+		    Source = #"RQ, BR PRD",
+		    AssemblyEmissions_Final = Source{[Name="AssemblyEmissions_Final"]}[Data],
+		    #"Renamed Columns" = Table.RenameColumns(AssemblyEmissions_Final,{{"Climate_change-Fossil-EF3_0_Method_adapted_kg-CO2-eq", "kgCO2e/Unit"}, {"MItemId", "MSPN"}, {"Published Date", "PublishDate"}, {"GWP Methodology", "GWPmethodology"}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Renamed Columns", each ([#"kgCO2e/Unit"] <> null and [#"kgCO2e/Unit"] <> "")),
+		    #"Added Custom" = Table.AddColumn(#"Filtered Rows", "DataSource", each "BR", type text),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Added Custom",{"MSPN", "kgCO2e/Unit", "GWPmethodology", "DataSource", "PublishDate"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+		    #"Split Column by Delimiter" = Table.SplitColumn(#"Removed Duplicates", "PublishDate", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"PublishDate.1", "PublishDate.2", "PublishDate.3"}),
+		    #"Merged Columns" = Table.CombineColumns(#"Split Column by Delimiter",{"PublishDate.2", "PublishDate.1", "PublishDate.3"},Combiner.CombineTextByDelimiter("/", QuoteStyle.None),"PublishDate"),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Merged Columns",{{"PublishDate", type date}})
+		in
+		    #"Changed Type"
+	lineageTag: 6ac93657-490d-4ece-a3fc-9b67090b314b
+	queryGroup: 'Latest CHEM Values from All Sources'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'MSPNs@FY25PO UAT+MRP' =
+		let
+		    Source = #"Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]",
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([FiscalYear] = 2025) and ([MSPN] <> "") and ([MSPN] <> null)),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"MSPN"}),
+		    #"Appended Query" = Table.Combine({#"Removed Other Columns", #"MSPNs from Planning MRP"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Appended Query")
+		in
+		    #"Removed Duplicates"
+	lineageTag: c31083b2-84cb-47c5-ac22-542165e3f9d4
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Unique MSPNs w CHEM@SME' =
+		let
+		    Source = #"RQ, CHEM Data",
+		    #"SME Override" = Source{[Name="SME Override"]}[Content],
+		    #"1 CSV Prep" = #"SME Override"{[Name="1.CSV Prep"]}[Content],
+		    #"Lowercased Text" = Table.TransformColumns(#"1 CSV Prep",{{"Name", Text.Lower, type text}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Lowercased Text", each Text.Contains([Name], "scaledpartemissions")),
+		    #"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"Date created", Order.Descending}}),
+		    Content = #"Sorted Rows"{0}[Content],
+		    #"Imported CSV" = Csv.Document(Content,[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"PartMSPN", type text}, {"PartEmission", type number}}),
+		    #"Filtered Rows2" = Table.SelectRows(#"Changed Type", each ([PartEmission] <> null and [PartEmission] <> 0)),
+		    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows2",{{"PartMSPN", "MSPN"}}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Renamed Columns",{"MSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns")
+		in
+		    #"Removed Duplicates"
+	lineageTag: 8630904e-2e2b-46b8-b98a-19f4f23d646f
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Unique MSPNs w CHEM@MAX' =
+		let
+		  Source = #"RQ, MAXDWPRD",
+		    Kelvin_FactGWPReportView = Source{[Schema="Kelvin",Item="GWPBOMReport"]}[Data],
+		    #"Renamed Columns" = Table.RenameColumns(Kelvin_FactGWPReportView,{{"Climate change - Fossil - EF 3.0 Method (adapted) (kg CO2 eq)", "kgCO2e"}}),
+		    #"Lowercased Text" = Table.TransformColumns(#"Renamed Columns",{{"ApprovedBy", Text.Lower, type text}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Lowercased Text", each [IsLatestVersion] = "Y" and ([ApprovedBy] = "arashsaboori@microsoft.com" or [ApprovedBy] = "lalitjoshi@microsoft.com" or [ApprovedBy] = "rakeshro@microsoft.com") and [MSPN] <> null and [kgCO2e] <> 0 and [kgCO2e] <> null and [Amount] <> null and [Amount] <> 0),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"MSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns")
+		in
+		    #"Removed Duplicates"
+	lineageTag: 14d6ad23-0d2d-4d1e-a298-197ecac5dc4a
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Unique MSPNs w CHEM@PPE' =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    Nexus = Source{[Name="Nexus"]}[Data],
+		    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsByPart"]}[Data],
+		    #"Filtered Rows" = Table.SelectRows(HwCarbonEmissionsReport, each ([GWP_FossilPerUnit] <> null and [GWP_FossilPerUnit] <> 0)),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"MSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns")
+		in
+		    #"Removed Duplicates"
+	lineageTag: afa27346-7f68-4c67-94d7-5f50463f5dbd
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Unique MSPNs w CHEM@BR' =
+		let
+		    Source = #"RQ, BR PRD",
+		    AssemblyEmissions_Final = Source{[Name="AssemblyEmissions_Final"]}[Data],
+		    #"Filtered Rows" = Table.SelectRows(AssemblyEmissions_Final, each ([#"Climate_change-Fossil-EF3_0_Method_adapted_kg-CO2-eq"] <> null and [#"Climate_change-Fossil-EF3_0_Method_adapted_kg-CO2-eq"] <> 0 and [#"Climate_change-Fossil-EF3_0_Method_adapted_kg-CO2-eq"] <> "")),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"MItemId"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Duplicates",{{"MItemId", "MSPN"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: 2d18c2f4-8619-4031-a4a1-4f7b1f700136
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression MSPNswithNonNullNonZeroCHEM =
+		let
+		    Source = Table.Combine({#"Unique MSPNs w CHEM@SME", #"Unique MSPNs w CHEM@MAX", #"Unique MSPNs w CHEM@PPE", #"Unique MSPNs w CHEM@BR"}),
+		    #"Removed Other Columns" = Table.SelectColumns(Source,{"MSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns", {"MSPN"}),
+		    MSPN = #"Removed Duplicates"[MSPN]
+		in
+		    MSPN
+	lineageTag: de580dd7-ea67-483e-a13b-a47278d8a091
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression GWPbyPart@NexusPPE =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    Nexus = Source{[Name="Nexus"]}[Data],
+		    HwCarbonEmissionsByPart = Source{[Name="HwCarbonEmissionsByPart"]}[Data],
+		    #"Duplicated Column" = Table.DuplicateColumn(HwCarbonEmissionsByPart, "ClassPathItemType", "ClassPathItemType2"),
+		    #"Split Column by Delimiter" = Table.SplitColumn(#"Duplicated Column", "ClassPathItemType2", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"ClassPathItemType.1", "PartLabel"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Split Column by Delimiter",{"MSPN", "PartName", "ClassPathItemType", "PartLabel", "GWP_FossilPerUnit", "MappingSource", "ReportPublishedDate"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Other Columns",{{"GWP_FossilPerUnit", "kgCO2e/unit"}, {"ReportPublishedDate", "PublishDate"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: 029e025d-aaa4-4ffb-aecd-1bf52204bb9f
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'List, NonLeafMSPNs@PPE' =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    Nexus = Source{[Name="Nexus"]}[Data],
+		    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsReport"]}[Data],
+		    #"Removed Other Columns" = Table.SelectColumns(HwCarbonEmissionsReport,{"ImmediateParentMSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+		    ImmediateParentMSPN = #"Removed Duplicates"[ImmediateParentMSPN]
+		in
+		    ImmediateParentMSPN
+	lineageTag: 55372b8f-1a8e-4571-9f33-530a2793d109
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression 'List, ZeroPartTypeImpact@BR' =
+		let
+		    Source = #"RQ, BR PRD",
+		    PartTypeImpact = Source{[Name="PartTypeImpact"]}[Data],
+		    #"Filtered Rows" = Table.SelectRows(PartTypeImpact, each ( [Impact] = "Zero")),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"PartItemClassPath", "PartType", "Impact"}),
+		    #"Sorted Rows" = Table.Sort(#"Removed Other Columns",{{"PartItemClassPath", Order.Ascending}}),
+		    PartItemClassPath = #"Sorted Rows"[PartItemClassPath]
+		in
+		    PartItemClassPath
+	lineageTag: ccff0fd9-32ff-4a31-9ad9-b4a2ba58dd35
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression 'Parts from All Levels of BOMs for PO MSPNs (from Report@BR PRD)' =
+		let
+		    Source = #"RQ, BR PRD",
+		    AssemblyEmissionReports = Source{[Name="AssemblyEmissionReports"]}[Data],
+		    #"Added Custom" = Table.AddColumn(AssemblyEmissionReports, "Flag", each if List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE", [TopParentMSPN]) or List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE", [ParentMSPN]) or List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE", [PartMSPN]) or List.Contains(#"MSPNs@Planning MRP", [PartMSPN]) then 1 else 0),
+		    #"Renamed Columns" = Table.RenameColumns(#"Added Custom",{{"PartMSPN", "MSPN"}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Renamed Columns", each ([Flag] = 1)),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"MSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns")
+		in
+		    #"Removed Duplicates"
+	lineageTag: 667cd9f4-f827-4c0c-bf4e-ab6e1d363abf
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Part_Alias@OnePDM =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [SOURCE_ID] as [Part_ID (Source_ID)],#(lf)    [RELATED_ID] as [MPN_ID (RELATED_ID)]#(lf)from [DesignODS].[Innovator_Part_AML] as [$Table]"])
+		in
+		    Source
+	lineageTag: 00e418a6-1661-4320-889a-e0778575d688
+	queryGroup: 'OnePDM Data\ipc File Mapping@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Manufacturer_Part@OnePDM =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [ID] as [MPN_ID],#(lf)    [MAJOR_REV] as [MAJOR_REV],#(lf)    [CONFIG_ID] as [CONFIG_ID],#(lf)    [ITEM_NUMBER] as [ITEM_NUMBER],#(lf)    [NAME] as [NAME],#(lf)    [MANUFACTURER] as [MANUFACTURER],#(lf)    [CE_MFR_PART_NUMBER] as [CE_MFR_PART_NUMBER]#(lf)from [DesignODS].[Innovator_Manufacturer_Part] as [$Table]"])
+		in
+		    Source
+	lineageTag: d1e63b2b-f343-4dcb-a94b-9dc7f8c1e736
+	queryGroup: 'OnePDM Data\ipc File Mapping@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Manufacturer@OnePDM =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [ID] as [Manufacturer_ID],#(lf)    [MAJOR_REV] as [MAJOR_REV],#(lf)    [CONFIG_ID] as [CONFIG_ID],#(lf)    [COUNTRY] as [COUNTRY],#(lf)    [NAME] as [NAME],#(lf)    [M_MANUFACTURER_ID] as [M_MANUFACTURER_ID],#(lf)    [SAP_ID] as [SAP_ID]#(lf)from [DesignODS].[Innovator_Manufacturer] as [$Table]"])
+		in
+		    Source
+	lineageTag: 36f0163d-e4fe-48c1-9810-cdf5b753f9fe
+	queryGroup: 'OnePDM Data\ipc File Mapping@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression ipcFileMapping@OnePDM =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [MPN],#(lf)    [SAPID],#(lf)    [filename]#(lf)from [Compliance].[ipcFileMapping] as [$Table]"])
+		in
+		    Source
+	lineageTag: 999ee4bb-3a5d-4676-9ec3-ead8e06c7c45
+	queryGroup: 'OnePDM Data\ipc File Mapping@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'MSPNs+PO#@FY20-25POs@CHEM & PPE' =
+		let
+		    Source = Table.Combine({#"Submitted to CELA FY25, MSPN+Count+MTCO2e_Spend", #"Submitted to CELA FY20-24, FY+MSPN+Count+MTCO2e_Spend"}),
+		    #"Renamed Columns" = Table.RenameColumns(Source,{{"FiscalYear", "FY"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: df796ba3-26f3-4db3-b988-f44f9c4626f4
+	queryGroup: 'PO Data+HW#\HW#'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'HIP/LIP-Data@PM@BR, TMP' =
+		let
+		    Source = #"RQ, HIP/LIP-Data@PM@BR",
+		    #"Added Custom" = Table.AddColumn(Source, "Priority", each if [Status] = "Approved" then 1 else if [Status] = "Pending" then 2 else 3, Int64.Type),
+		    #"Grouped Rows" = Table.Group(#"Added Custom", {"PartItemClassPath"}, {{"TopPriority", each List.Min([Priority]), type number}})
+		in
+		    #"Grouped Rows"
+	lineageTag: 7361d31b-8a51-4d9a-a21c-3e689716c8b7
+	queryGroup: 'Nexus+BR Data\Part Type Impacts@BR'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Parts@OnePDM =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [_].[ID] as [PART_ID],#(lf)    [_].[ITEM_NUMBER] as [ITEM_NUMBER],#(lf)    [_].[ITEM_CLASS_ID] as [ITEM_CLASS_ID]#(lf)from [DesignODS].[Innovator_Part] as [_]#(lf)where [_].[IS_CURRENT] = '1' and [_].[IS_CURRENT] is not null"])
+		in
+		    Source
+	lineageTag: d9852747-85b2-4a83-b27a-85741481cd13
+	queryGroup: 'OnePDM Data\Rack Chars@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression PartCharVals@OnePDM =
+		let
+		    Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [_].[SOURCE_ID] as [PART_ID],#(lf)    [_].[ITEM_CHARACTERISTIC_ID] as [ITEM_CHARACTERISTIC_ID],#(lf)    [_].[TEXT_VALUE] as [TEXT_VALUE]#(lf)from #(lf)(#(lf)    select [SOURCE_ID],#(lf)        [ITEM_CHARACTERISTIC_ID],#(lf)        [TEXT_VALUE]#(lf)    from [DesignODS].[Innovator_Part_Item_Characteristic_Value] as [$Table]#(lf)) as [_]#(lf)where ((([_].[TEXT_VALUE] <> 'Restricted' or [_].[TEXT_VALUE] is null) and ([_].[TEXT_VALUE] <> '0' or [_].[TEXT_VALUE] is null)) and [_].[TEXT_VALUE] is not null) and ([_].[TEXT_VALUE] <> '' or [_].[TEXT_VALUE] is null)"])
+		in
+		    Source
+	lineageTag: 8592c109-4616-473a-be12-e54c3a4c6b86
+	queryGroup: 'OnePDM Data\Rack Chars@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression PartCharLabels@OnePDM =
+		let
+		    Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd", [Query="select [id] as [CHAR_ID],#(lf)    [LABEL] as [LABEL]#(lf)from [DesignODS].[Innovator_Item_Characteristic] as [$Table]"])
+		in
+		    Source
+	lineageTag: bd800e49-cd2a-426a-8d87-873530a6d606
+	queryGroup: 'OnePDM Data\Rack Chars@1PDM'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression TopParentMSPN@AssemblyReport@BR =
+		let
+		    Source = #"RQ, BR PRD",
+		    AssemblyEmissionReports = Source{[Name="AssemblyEmissionReports"]}[Data],
+		    TopParentMSPN = List.Distinct(AssemblyEmissionReports[TopParentMSPN])
+		in
+		    TopParentMSPN
+	lineageTag: 94f7cd1f-b266-4581-ac2e-943a045039f8
+	queryGroup: 'MSPN Lists'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression ConversionTable =
+		let
+		    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("jZRNT8MwDIb/ylSuk4mTOB/XgcSFnQbiMO1Qpq6r2AcakRD/nsQF7UKJL2lkP33jvnazXjfbYzNvUOXlWHaP3alP+9nzaUjNZr5udikHjbIQpojhlIOawE4B4wFq8ggO4lT2YcGv6yK/LPtVOl/avpvdte/tdkhfV5TTWOeeRkkbyLs63f+IludLN/T7dM299ddv+yt/eP3IUUsGKGrjJ6ibIo9AwdOvC6vtpfu8XZwPaXY/tMcudZcR1YzGYFntf9aUxoAJqOu6llnvM1xli5oBFFTrmCSPoV5tYDY6iQuxuArGkatXy7NtwTuBC1g6QYAUBfayUwREImXDcCQjMBhLNxwYgaxj0lsncBiLxR7IKoFtWjGcjRAMZak3AtV9WCq+SPKqqiiC42F3WEU1T6+qa2ogRqmOGp5HgaaB8YcQaFoeRYEm8bQIwLH/ArDYHmrg5hs=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [DISPLAY_VALUE = _t, #"Conv Coeff" = _t, #"Conv Unit" = _t, LABEL = _t]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source,{{"DISPLAY_VALUE", type text}, {"Conv Coeff", type number}, {"Conv Unit", type text}, {"LABEL", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: cee9e833-8973-4875-bf1f-8e9c96e42ba1
+	queryGroup: APM
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Selected Chars' =
+		let
+		    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("XZDfCoIwFMZf5eBVQdAzlGIF7UYTL8SL0zrYQJ3ME+HbJ2615d33h+37bVUVxdrQGNW7KkqQETJkso76UfEUaih6xS4Y+OlVUCiCv5MXIeBEuiM2LskOAm7TYFdSbTpIUbI2iz+Tap4cSNgU29D+lq7UN47BSl+J+Q1GYbuYXBp674+6ZUgUzhxkl/J5EhuCGAeUX9x16O/MX3fZ4mh/qvSU5QqrVA9HtShX1B8=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Selected Chars" = _t]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Selected Chars", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 9a574645-d02e-471e-bd9a-63e4287dd807
+	queryGroup: APM
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'RQ, MAXDWPRD@SQL Server' =
+		let
+		  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd"),
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([Schema] = "DesignODS"))
+		in
+		    #"Filtered Rows"
+	lineageTag: 1dfff2ae-add0-4fc6-8a5b-39b5a390a086
+	queryGroup: APM
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'PartCharLabels@OnePDM [FILTERED]' =
+		let
+		    Source = #"RQ, MAXDWPRD@SQL Server",
+		    DesignODS_Innovator_Item_Characteristic = Source{[Schema="DesignODS",Item="Innovator_Item_Characteristic"]}[Data],
+		    #"Removed Other Columns" = Table.SelectColumns(DesignODS_Innovator_Item_Characteristic,{"id", "LABEL", "CHARACTERISTIC_VALUE_TYPE"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Other Columns",{{"id", "CHAR_ID"}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Renamed Columns", each ([CHARACTERISTIC_VALUE_TYPE] = "List" or [CHARACTERISTIC_VALUE_TYPE] = "Number")),
+		    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"LABEL"}, #"Selected Chars", {"Selected Chars"}, "SelectedCharacteristics", JoinKind.Inner),
+		    #"Removed Columns" = Table.RemoveColumns(#"Merged Queries",{"SelectedCharacteristics"})
+		in
+		    #"Removed Columns"
+	lineageTag: a6c2eb51-c66b-4bcc-9835-a1d7f082278a
+	queryGroup: APM
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression CharsForAllFleetParts =
+		let
+		    Source = #"Parts from All Levels of BOMs for PO MSPNs (from Report@BR PRD)",
+		    #"Merged Queries" = Table.NestedJoin(Source, {"MSPN"}, #"Parts@OnePDM", {"ITEM_NUMBER"}, "Parts@OnePDM", JoinKind.Inner),
+		    #"Expanded Parts@OnePDM" = Table.ExpandTableColumn(#"Merged Queries", "Parts@OnePDM", {"PART_ID"}, {"PART_ID"}),
+		    #"Merged Queries1" = Table.NestedJoin(#"Expanded Parts@OnePDM", {"PART_ID"}, #"PartCharVals@OnePDM", {"PART_ID"}, "PartCharVals@OnePDM", JoinKind.Inner),
+		    #"Expanded PartCharVals@OnePDM" = Table.ExpandTableColumn(#"Merged Queries1", "PartCharVals@OnePDM", {"TEXT_VALUE", "ITEM_CHARACTERISTIC_ID"}, {"TEXT_VALUE", "ITEM_CHARACTERISTIC_ID"}),
+		    #"Merged Queries2" = Table.NestedJoin(#"Expanded PartCharVals@OnePDM", {"ITEM_CHARACTERISTIC_ID"}, #"PartCharLabels@OnePDM [FILTERED]", {"CHAR_ID"}, "PartCharLabels@OnePDM", JoinKind.Inner),
+		    #"Expanded PartCharLabels@OnePDM" = Table.ExpandTableColumn(#"Merged Queries2", "PartCharLabels@OnePDM", {"LABEL", "CHARACTERISTIC_VALUE_TYPE"}, {"LABEL", "CHARACTERISTIC_VALUE_TYPE"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Expanded PartCharLabels@OnePDM",{"MSPN", "TEXT_VALUE", "LABEL", "CHARACTERISTIC_VALUE_TYPE"})
+		in
+		    #"Removed Other Columns"
+	lineageTag: c193ba4c-530f-4ac6-94a8-e174c92dd4c9
+	queryGroup: APM
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'BOM Structure & Counts@BR' =
+		let
+		    Source = #"RQ, BR PRD",
+		    AssemblyEmissionReports = Source{[Name="AssemblyEmissionReports"]}[Data],
+		    #"Added Custom" = Table.AddColumn(AssemblyEmissionReports, "InPO20-25", each if List.Contains(#"MSPNs@FY20-25POs", [TopParentMSPN]) or List.Contains(#"MSPNs@FY20-25POs", [ParentMSPN]) or List.Contains(#"MSPNs@FY20-25POs", [PartMSPN]) then 1 else 0),
+		    #"Filtered Rows" = Table.SelectRows(#"Added Custom", each ([#"InPO20-25"] <> 0)),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"TopParentMSPN", "PartMSPN", "BOMQuantity", "PartEmission", "IsLeaf"})
+		in
+		    #"Removed Other Columns"
+	lineageTag: ee4f5194-322a-4a95-a01b-91bb00f327cb
+	queryGroup: 'PO Data+HW#'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression SelectedClassAndChars =
+		let
+		    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("jZHRisIwEEV/ZejrCn5DTRUXLMhmfRIfpumgYdOOTKLSv7e2QmmNrE+Be0/Iycx+nygsHCWzZEP1MZySw2wawa62YZTrS2Ecet+HXNdkAsu0WKOUkFn/B5nY6+PeiqWCFXZwnNBthUcChWc0NjQfYoPit4KtsCHvOyHFQr1NThVLAzmXl+4P2U+aw29zpmgb9fgPGiy2agGp91QVrpmOpe3Sr3yp1i8F30igNS7H24jkw0vaCN3G/Dh6RbtzvmAX2qFiRYH6bWh2tgQdMNDbjcWY6Kw+AZ9qhzs=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [PartLabel = _t, #"Char Label" = _t]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source,{{"PartLabel", type text}, {"Char Label", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 0a8cabe6-faf1-489a-b758-2233fa5b4b68
+	queryGroup: APM
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Dx-Part Att-Char Vals for All Racks@OnePDM' =
+		let
+		    Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd"),
+		    DesignODS_Innovator_Item_Class = Source{[Schema="DesignODS",Item="Innovator_Item_Class"]}[Data],
+		    #"Duplicated Column" = Table.DuplicateColumn(DesignODS_Innovator_Item_Class, "LABEL", "LABEL - Copy"),
+		    #"Lowercased Text" = Table.TransformColumns(#"Duplicated Column",{{"LABEL - Copy", Text.Lower, type text}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Lowercased Text", each not Text.Contains([#"LABEL - Copy"], "packaging cloud") and (Text.Contains([#"LABEL - Copy"], "planning") or Text.Contains([#"LABEL - Copy"], "rack assembly"))),
+		    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"id", "CLASS_ID"}}),
+		    #"Merged Queries" = Table.NestedJoin(#"Renamed Columns", {"CLASS_ID"}, #"Parts@OnePDM", {"ITEM_CLASS_ID"}, "Parts@OnePDM", JoinKind.LeftOuter),
+		    #"Expanded Parts@OnePDM" = Table.ExpandTableColumn(#"Merged Queries", "Parts@OnePDM", {"PART_ID", "ITEM_NUMBER"}, {"PART_ID", "ITEM_NUMBER"}),
+		    #"Merged Queries1" = Table.NestedJoin(#"Expanded Parts@OnePDM", {"PART_ID"}, #"PartCharVals@OnePDM", {"PART_ID"}, "PartCharVals@OnePDM [FILTERED]", JoinKind.LeftOuter),
+		    #"Expanded PartCharVals@OnePDM [FILTERED]" = Table.ExpandTableColumn(#"Merged Queries1", "PartCharVals@OnePDM [FILTERED]", {"TEXT_VALUE", "ITEM_CHARACTERISTIC_ID"}, {"TEXT_VALUE", "ITEM_CHARACTERISTIC_ID"}),
+		    #"Merged Queries2" = Table.NestedJoin(#"Expanded PartCharVals@OnePDM [FILTERED]", {"ITEM_CHARACTERISTIC_ID"}, #"PartCharLabels@OnePDM", {"CHAR_ID"}, "PartCharLabels@OnePDM [FILTERED]", JoinKind.LeftOuter),
+		    #"Expanded PartCharLabels@OnePDM [FILTERED]" = Table.ExpandTableColumn(#"Merged Queries2", "PartCharLabels@OnePDM [FILTERED]", {"LABEL"}, {"CharLABEL"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Expanded PartCharLabels@OnePDM [FILTERED]",{"ITEM_NUMBER", "ITEM_CLASS_PATH_LABEL", "LABEL", "CharLABEL", "TEXT_VALUE"}),
+		    #"Filtered Rows1" = Table.SelectRows(#"Removed Other Columns", each [ITEM_NUMBER] <> null and [CharLABEL] <> null and [TEXT_VALUE] <> null)
+		in
+		    #"Filtered Rows1"
+	lineageTag: 94c96443-70c2-4901-8cf9-c760a3257d8d
+	queryGroup: 'OnePDM Data'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression KPI-AssemblyCompleteness =
+		let
+		    Source = AzureDataExplorer.Contents("https://kusto-csp-prd-wus3-01.westus3.kusto.windows.net/", null, null, [MaxRows=1000000000000, MaxSize=1000000000000, NoTruncate=true, AdditionalSetStatements=null]),
+		    csp = Source{[Name="csp"]}[Data],
+		    AssemblyCompleteness1 = csp{[Name="AssemblyCompleteness"]}[Data],
+		    #"Merged Queries" = Table.NestedJoin(AssemblyCompleteness1, {"TopParentMSPN"}, #"MSPNs@FY25PO UAT+MRP", {"MSPN"}, "MSPNs@FY25PO UAT@Nexus PPE (Table)", JoinKind.Inner),
+		    #"Removed Errors" = Table.RemoveRowsWithErrors(#"Merged Queries", {"MSPNs@FY25PO UAT@Nexus PPE (Table)"})
+		in
+		    #"Removed Errors"
+	lineageTag: d49e92fa-d8e7-4b5a-945f-f14b98f3e500
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Backup, Parts from All Levels of BOMs for PO MSPNs (from Report@PPE Nexus) (2)' =
+		let
+		    Source = #"RQ, Nexus PPE",
+		    Nexus = Source{[Name="Nexus"]}[Data],
+		    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsReport"]}[Data],
+		    #"Added Custom1" = Table.AddColumn(HwCarbonEmissionsReport, "ZeroImpactType?", each if List.Contains(#"ZeroPartTypeImpact@BR", [ClassPathItemType]) then 1 else 0),
+		    #"Added Custom" = Table.AddColumn(#"Added Custom1", "Flag", each if List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE", [BOM]) or List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE", [ImmediateParentMSPN]) or List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE", [MSPN]) then 1 else 0),
+		    #"Filtered Rows" = Table.SelectRows(#"Added Custom", each [Flag] = 1 and [#"ZeroImpactType?"] = 0),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"MSPN"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns")
+		in
+		    #"Removed Duplicates"
+	lineageTag: 7d946b24-f440-45cf-9043-cc2f0ec92c73
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'NQ for PO Data' =
+		let
+		    Source = AzureDataExplorer.Contents("https://nexuscoreppe.westus.kusto.windows.net", "Nexus", "PbookCELAPublishedWithAllFields | where TimeKey == #(lf)toscalar(#(lf)   PbookCELAPublishedWithAllFields#(lf)    | summarize max(TimeKey)#(lf))#(lf)and MappedFiscalYear == 2025#(lf)| project TimeKey,#(lf)FiscalYear = MappedFiscalYear,#(lf)FiscalQuarter,#(lf)MSPN = MItemId,#(lf)MsfId,#(lf)POLineQuantity,#(lf)kgCO2e_Unit = Fossil_kgCO2eq_PerUnit,#(lf)CHEMMethodology,#(lf)RackCompletenessScore,#(lf)MTCO2e_CHEM = EmissionsInMetricTon,#(lf)MTCO2e_Spend = SpendEmissions,#(lf)OriginalPONumber,#(lf)PONumberUpdated,#(lf)OriginalPOLineItemNumberCustom,#(lf)POTitle,#(lf)PODescription,#(lf)LineItemDescription", [MaxRows=null, MaxSize=null, NoTruncate=null, AdditionalSetStatements=null])
+		in
+		    Source
+	lineageTag: c23e91fa-aa7d-4b11-9d6b-78307a7af3cb
+	queryGroup: 'PO Data+HW#\PO Data, FY25'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Backup, Original CHEM@SME' =
+		let
+		    Source = "backup of original = #""RQ, CHEM Data""",
+		    #"SME Override" = Source{[Name="SME Override"]}[Content],
+		    #"1.CSV Prep" = #"SME Override"{[Name="1.CSV Prep"]}[Content],
+		    #"SME FDT (csv)" = #"1.CSV Prep"{[Name="SME FDT (csv)"]}[Content],
+		    #"Sorted Rows" = Table.Sort(#"SME FDT (csv)",{{"Name", Order.Descending}}),
+		    #"SME Override Table" = #"Sorted Rows"{0}[Content],
+		    #"Imported CSV" = Csv.Document(#"SME Override Table",[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Renamed Columns" = Table.RenameColumns(#"Imported CSV",{{"Column1", "MSPN"}, {"Column2", "kgCO2e/Unit"}, {"Column3", "GWPmethodology"}, {"Column5", "PublishDate"}, {"Column4", "DataSource (File|Created|Modified)"}}),
+		    #"Added Custom" = Table.AddColumn(#"Renamed Columns", "DataSource", each "SME", type text),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom",{{"kgCO2e/Unit", type number}, {"PublishDate", type date}}),
+		    #"Removed Errors" = Table.RemoveRowsWithErrors(#"Changed Type", {"kgCO2e/Unit"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Removed Errors",{"MSPN", "kgCO2e/Unit", "GWPmethodology", "DataSource", "PublishDate"}),
+		    #"Replaced Errors" = Table.ReplaceErrorValues(#"Removed Other Columns", {{"PublishDate", null}}),
+		    #"Removed Duplicates" = Table.Distinct(#"Replaced Errors", {"MSPN"})
+		in
+		    #"Removed Duplicates"
+	lineageTag: f9bca1b1-7651-4722-817c-e88ecf4d7b2a
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+
+expression 'RQ, Nexus PRD' =
+		let
+		    Source = AzureDataExplorer.Contents("https://nexuscoreppe.westus.kusto.windows.net", "Nexus", null, [MaxRows=10000000000, MaxSize=10000000000, NoTruncate=true, AdditionalSetStatements=null])
+		in
+		    Source
+	lineageTag: 25d73190-cbeb-4573-931e-8fc7587b364f
+	queryGroup: RQs
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'MSPNs@Planning MRP' =
+		let
+		    Source = #"RQ, CHEM Data",
+		    Planning = Source{[Name="Planning"]}[Content],
+		    #"Planning MSPNs csv" = Planning{[Name="Planning MSPNs.csv"]}[Content],
+		    #"Imported Text" = Table.FromColumns({Lines.FromBinary(#"Planning MSPNs csv",null,null,1252)}),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported Text", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Planning MSPNs", type text}}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"Planning MSPNs", "MSPN"}}),
+		    MSPN = #"Renamed Columns"[MSPN]
+		in
+		    MSPN
+	lineageTag: b559a134-1a82-420d-b32c-3d76a72d3030
+	queryGroup: 'MSPN Lists'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+
+expression 'MSPNs from Planning MRP' =
+		let
+		    Source = #"RQ, CHEM Data",
+		    Planning = Source{[Name="Planning"]}[Content],
+		    #"Planning MSPNs csv" = Planning{[Name="Planning MSPNs.csv"]}[Content],
+		    #"Imported Text" = Table.FromColumns({Lines.FromBinary(#"Planning MSPNs csv",null,null,1252)}),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Imported Text", [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Planning MSPNs", type text}}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"Planning MSPNs", "MSPN"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: fb7d9013-7446-4e2d-8ece-bb4a3a9a0e35
+	queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

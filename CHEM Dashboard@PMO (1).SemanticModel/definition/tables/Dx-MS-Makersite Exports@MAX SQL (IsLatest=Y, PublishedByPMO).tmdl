@@ -1,0 +1,177 @@
+table 'Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)'
+	lineageTag: 42369812-8eaf-48b4-86b5-7cf5dec72f49
+
+	column BOM
+		dataType: string
+		lineageTag: 00d8d414-62ce-437a-ab06-bec6dcd42c6c
+		summarizeBy: none
+		sourceColumn: BOM
+
+		annotation SummarizationSetBy = Automatic
+
+	column InputBomSortOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: 203ec005-1c75-4671-a800-92b1488a46cf
+		summarizeBy: none
+		sourceColumn: InputBomSortOrder
+
+		annotation SummarizationSetBy = User
+
+	column Tier
+		dataType: int64
+		formatString: 0
+		lineageTag: 465f0bfd-fbec-43b5-8c42-ceaade36cd04
+		summarizeBy: none
+		sourceColumn: Tier
+
+		annotation SummarizationSetBy = User
+
+	column ParentMSPN
+		dataType: string
+		lineageTag: 70f4f68c-d1e8-44bb-9efa-f2aec4113ed0
+		summarizeBy: none
+		sourceColumn: ParentMSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column MSPN
+		dataType: string
+		lineageTag: 4cc23cde-f443-4bbd-8fdb-3056e04835af
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e
+		dataType: double
+		lineageTag: 045725d2-a496-4e0a-8815-1269bdfbcf0d
+		summarizeBy: sum
+		sourceColumn: kgCO2e
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Amount
+		dataType: double
+		lineageTag: ce7e7afb-3772-4de6-85ed-70f210aecc9c
+		summarizeBy: sum
+		sourceColumn: Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Amount_Unit
+		dataType: string
+		lineageTag: 3638f797-d275-4757-aaf8-d2389c9cf1c3
+		summarizeBy: none
+		sourceColumn: Amount_Unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column BOMQuantity
+		dataType: double
+		lineageTag: 8984444c-8bf1-40d3-8e27-ecd423b75158
+		summarizeBy: sum
+		sourceColumn: BOMQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Weight(kg)
+		dataType: double
+		lineageTag: 86463858-0b1c-42b0-b77f-30ff3a3e1f98
+		summarizeBy: sum
+		sourceColumn: Weight(kg)
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PartType
+		dataType: string
+		lineageTag: c86ff275-14ff-48a4-a702-1f27c1f79632
+		summarizeBy: none
+		sourceColumn: PartType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: 702bcb8e-1a0d-422b-b712-70f44a728651
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Type
+		dataType: string
+		lineageTag: 45dd151b-5811-4b14-a8b5-a7702d10e067
+		summarizeBy: none
+		sourceColumn: Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column GWPSource
+		dataType: string
+		lineageTag: e6a5079c-6ff8-4d2c-8603-e3a182ff341a
+		summarizeBy: none
+		sourceColumn: GWPSource
+
+		annotation SummarizationSetBy = Automatic
+
+	column FileName
+		dataType: string
+		lineageTag: 6b41c985-1f56-4d87-9852-10d0c4f81c00
+		summarizeBy: none
+		sourceColumn: FileName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ApprovedBy
+		dataType: string
+		lineageTag: 97489b09-f928-4a7b-830d-7b03ea16ed79
+		summarizeBy: none
+		sourceColumn: ApprovedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublishDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 2c1121a5-8940-46eb-be91-f681957bd745
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column ADWLoadDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3295b2d8-bd4e-43cf-bb10-e24891228726
+		summarizeBy: none
+		sourceColumn: ADWLoadDate
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)' = m
+		mode: import
+		queryGroup: 'Makersite Data'
+		source =
+				let
+				  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd"),
+				    Kelvin_FactGWPReportView = Source{[Schema="Kelvin",Item="GWPBOMReport"]}[Data],
+				    #"Lowercased Text" = Table.TransformColumns(Kelvin_FactGWPReportView,{{"ApprovedBy", Text.Lower, type text}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Lowercased Text", each ([IsLatestVersion] = "Y") and ([ApprovedBy] = "arashsaboori@microsoft.com" or [ApprovedBy] = "lalitjoshi@microsoft.com" or [ApprovedBy] = "rakeshro@microsoft.com")),
+				    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"Climate change - Fossil - EF 3.0 Method (adapted) (kg CO2 eq)", "kgCO2e"}, {"Part_Type", "PartType"}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Renamed Columns",{"BOM", "InputBomSortOrder", "Tier", "ParentMSPN", "MSPN", "kgCO2e", "Amount", "Amount_Unit", "BOMQuantity", "Weight(kg)", "PartType", "Name", "Type", "GWPSource", "FileName", "ApprovedBy", "PublishDate", "ADWLoadDate"})
+				in
+				    #"Removed Other Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,58 @@
+table 'Dx-CHEM-Latest GWPs from All Sources [FDT]'
+	lineageTag: 01f8fd1b-d507-4cac-892b-5ea8b452d9fe
+
+	column MSPN
+		dataType: string
+		lineageTag: 086c9efc-b483-46cf-b067-fa783ee4623e
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e/Unit
+		dataType: double
+		lineageTag: ddda61f9-4755-454f-8baa-454e9da78191
+		summarizeBy: none
+		sourceColumn: kgCO2e/Unit
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column GWPmethodology
+		dataType: string
+		lineageTag: 4f0fbaac-0783-4734-a5f1-1978addba66e
+		summarizeBy: none
+		sourceColumn: GWPmethodology
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataSource
+		dataType: string
+		lineageTag: 160e27c8-b26a-4314-b07f-9746116711b2
+		summarizeBy: none
+		sourceColumn: DataSource
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublishDate
+		dataType: string
+		lineageTag: b00eff64-3561-420a-b657-d41fae1750cf
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-CHEM-Latest GWPs from All Sources [FDT]' = m
+		mode: import
+		queryGroup: 'Latest CHEM Values from All Sources'
+		source =
+				let
+				    Source = Table.Combine({#"CHEM@BR", #"CHEM@MAX", #"CHEM@PPE", #"[MANUAL, TMP] CHEM@SME"})
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

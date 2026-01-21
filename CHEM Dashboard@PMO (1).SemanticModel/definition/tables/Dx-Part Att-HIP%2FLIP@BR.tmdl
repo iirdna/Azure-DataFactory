@@ -1,0 +1,102 @@
+table 'Dx-Part Att-HIP/LIP@BR'
+	lineageTag: 5b182497-b882-44de-89c3-c1dba95df4eb
+
+	column ClassPath
+		dataType: string
+		lineageTag: 25a7e985-948c-4b63-8bc3-48f11ffc1f99
+		summarizeBy: none
+		sourceColumn: ClassPath
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassLabel
+		dataType: string
+		lineageTag: e494fbed-ac30-464e-9439-3c763dcd913b
+		summarizeBy: none
+		sourceColumn: ClassLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column Impact
+		dataType: string
+		lineageTag: 4593cdd9-321c-4860-9b4c-b3f8c78cdc9d
+		summarizeBy: none
+		sourceColumn: Impact
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 38905805-cd98-459c-a141-0477c3cd52ba
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column Min_PartEmission
+		dataType: string
+		lineageTag: 1d71d3f6-a42b-46ed-9e7b-2ef63c9f1109
+		summarizeBy: none
+		sourceColumn: Min_PartEmission
+
+		annotation SummarizationSetBy = Automatic
+
+	column Avg_PartEmission
+		dataType: string
+		lineageTag: 112ee5e5-b21a-4144-acaa-16b6f83ad465
+		summarizeBy: none
+		sourceColumn: Avg_PartEmission
+
+		annotation SummarizationSetBy = Automatic
+
+	column Max_PartEmission
+		dataType: string
+		lineageTag: 4466a516-963e-4a31-a234-0d4cde7c880c
+		summarizeBy: none
+		sourceColumn: Max_PartEmission
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedBy
+		dataType: string
+		lineageTag: 90c5b8e8-db74-4187-9763-e379296988aa
+		summarizeBy: none
+		sourceColumn: CreatedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedDate
+		dataType: string
+		lineageTag: dc2e2b76-be9d-4093-9396-fd1ba8e50040
+		summarizeBy: none
+		sourceColumn: CreatedDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column Comments
+		dataType: string
+		lineageTag: cdd4645c-075e-4660-a594-3c239dcea549
+		summarizeBy: none
+		sourceColumn: Comments
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-Part Att-HIP/LIP@BR' = m
+		mode: import
+		queryGroup: 'Nexus+BR Data'
+		source =
+				let
+				    Source = #"RQ, HIP/LIP-Data@PM@BR",
+				    #"Duplicated Column" = Table.DuplicateColumn(Source, "PartItemClassPath", "PartItemClassPath2"),
+				    #"Split Column by Delimiter" = Table.SplitColumn(#"Duplicated Column", "PartItemClassPath2", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"PartItemClassPath2.1", "ClassLabel"}),
+				    #"Added Custom" = Table.AddColumn(#"Split Column by Delimiter", "Priority", each if [Status] = "Approved" then 1 else if [Status] = "Pending" then 2 else 3, Int64.Type),
+				    #"Merged Queries" = Table.NestedJoin(#"Added Custom", {"Priority"}, #"HIP/LIP-Data@PM@BR, TMP", {"TopPriority"}, "HIP/LIP-Data@PM@BR UAT, TMP", JoinKind.Inner),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Merged Queries",{"PartItemClassPath", "ClassLabel", "Impact", "Status", "Min_PartEmission", "Avg_PartEmission", "Max_PartEmission", "CreatedBy", "CreatedDate", "Comments"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Other Columns",{{"PartItemClassPath", "ClassPath"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

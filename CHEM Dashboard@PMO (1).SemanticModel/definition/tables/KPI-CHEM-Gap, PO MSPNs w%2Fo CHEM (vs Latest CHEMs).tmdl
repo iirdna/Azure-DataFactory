@@ -1,0 +1,103 @@
+table 'KPI-CHEM-Gap, PO MSPNs w/o CHEM (vs Latest CHEMs)'
+	lineageTag: 3a155049-6f84-4227-be94-b088dc67802d
+
+	column MSPN
+		dataType: string
+		lineageTag: 9b5f3711-2d23-46a9-ac9d-52d544cbf319
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartName
+		dataType: string
+		lineageTag: 891fa003-da2b-4442-9641-2e88fb7e6a8d
+		summarizeBy: none
+		sourceColumn: PartName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPathItemType
+		dataType: string
+		lineageTag: bede493a-9dd5-4473-a41e-421c00291204
+		summarizeBy: none
+		sourceColumn: ClassPathItemType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartLabel
+		dataType: string
+		lineageTag: 5219e2ee-a49b-4e2f-b249-9dd37effb151
+		summarizeBy: none
+		sourceColumn: PartLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e/unit
+		dataType: double
+		lineageTag: 614164e2-6d3a-4fd3-9e57-3c0a93ce0007
+		summarizeBy: none
+		sourceColumn: kgCO2e/unit
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column IsParentInGWPreport@NexusPPE
+		dataType: int64
+		formatString: 0
+		lineageTag: 3ed9a116-258f-484e-9bde-eb992e7b564d
+		summarizeBy: none
+		sourceColumn: IsParentInGWPreport@NexusPPE
+
+		annotation SummarizationSetBy = User
+
+	column ZeroPartTypeImpact
+		dataType: int64
+		formatString: 0
+		lineageTag: 6ffcf8de-c151-4dc2-a4b1-7961b39bdc40
+		summarizeBy: none
+		sourceColumn: ZeroPartTypeImpact
+
+		annotation SummarizationSetBy = User
+
+	column ZeroCHEMneedsToBeFixed
+		dataType: int64
+		formatString: 0
+		lineageTag: b14f0739-f867-4e3f-9308-de80f67158d0
+		summarizeBy: none
+		sourceColumn: ZeroCHEMneedsToBeFixed
+
+		annotation SummarizationSetBy = User
+
+	column 'Need CHEM?'
+		dataType: int64
+		formatString: 0
+		lineageTag: e4c09df6-de70-4ebc-b3ea-87e42c9c342d
+		summarizeBy: none
+		sourceColumn: Need CHEM?
+
+		annotation SummarizationSetBy = User
+
+	partition 'KPI-CHEM-Gap, PO MSPNs w/o CHEM (vs Latest CHEMs)' = m
+		mode: import
+		queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+		source =
+				let
+				    Source = #"MSPNs@FY25PO UAT+MRP",
+				    #"Added Custom" = Table.AddColumn(Source, "Has CHEM Value > 0?", each if List.Contains(MSPNswithNonNullNonZeroCHEM, [MSPN]) then 1 else 0, Int64.Type),
+				    #"Filtered Rows" = Table.SelectRows(#"Added Custom", each ([#"Has CHEM Value > 0?"] = 0)),
+				    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"MSPN"}, #"GWPbyPart@NexusPPE", {"MSPN"}, "GWPbyPart@NexusPPE", JoinKind.LeftOuter),
+				    #"Expanded GWPbyPart@NexusPPE" = Table.ExpandTableColumn(#"Merged Queries", "GWPbyPart@NexusPPE", {"PartName", "ClassPathItemType", "PartLabel", "kgCO2e/unit"}, {"PartName", "ClassPathItemType", "PartLabel", "kgCO2e/unit"}),
+				    #"Added Custom1" = Table.AddColumn(#"Expanded GWPbyPart@NexusPPE", "IsParentInGWPreport@NexusPPE", each if List.Contains(#"List, NonLeafMSPNs@PPE", [MSPN]) then 1 else 0, Int64.Type),
+				    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "ZeroPartTypeImpact", each if List.Contains(#"List, ZeroPartTypeImpact@BR", [ClassPathItemType]) then 1 else 0, Int64.Type),
+				    #"Added Custom4" = Table.AddColumn(#"Added Custom2", "ZeroCHEMneedsToBeFixed", each if [#"kgCO2e/unit"] = 0 and [ZeroPartTypeImpact] = 0 then 1 else 0, Int64.Type),
+				    #"Added Custom5" = Table.AddColumn(#"Added Custom4", "Need CHEM?", each if [#"IsParentInGWPreport@NexusPPE"] = 1  or [ZeroPartTypeImpact] = 1 then 0 else 1, Int64.Type),
+				    #"Removed Other Columns2" = Table.SelectColumns(#"Added Custom5",{"MSPN", "PartName", "ClassPathItemType", "PartLabel", "kgCO2e/unit", "IsParentInGWPreport@NexusPPE", "ZeroPartTypeImpact", "ZeroCHEMneedsToBeFixed", "Need CHEM?"})
+				in
+				    #"Removed Other Columns2"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+

@@ -1,0 +1,71 @@
+table 'KPI-CHEM-MAX vs Nexus'
+	lineageTag: c357310e-5571-420d-aa33-ffbb5a54ab85
+
+	column MSPN
+		dataType: string
+		lineageTag: 457620c0-7b68-454b-927b-bd6a041f1ed8
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'kgCO2e/unit.Max@Makersite'
+		dataType: double
+		lineageTag: 1490a9c7-d2d3-45cf-a832-13a6ebe11e2a
+		summarizeBy: none
+		sourceColumn: kgCO2e/unit.Max@Makersite
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column kgCO2e/unit@NexusPPE
+		dataType: string
+		lineageTag: e759f761-ec75-4252-a455-54db4c7ec9d3
+		summarizeBy: none
+		sourceColumn: kgCO2e/unit@NexusPPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column MappingSource@NexusPPE
+		dataType: string
+		lineageTag: dce80b86-70db-497b-9983-113c81a60180
+		summarizeBy: none
+		sourceColumn: MappingSource@NexusPPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column Makersite/Nexus
+		dataType: double
+		lineageTag: b5b76eaf-8c51-4c44-91ae-ef1e5f22f8ad
+		summarizeBy: none
+		sourceColumn: Makersite/Nexus
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'KPI-CHEM-MAX vs Nexus' = m
+		mode: import
+		queryGroup: 'QC.GWP Anomalies@PPE'
+		source =
+				let
+				  Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+				    #"Filtered Rows" = Table.SelectRows(Source, each [MSPN] <> null and not Text.StartsWith([MSPN], "GWP") and [kgCO2e] <> null and [Amount] <> 0 and [Amount]<> null),
+				    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"MSPN", "PublishDate"}, #"Latest  Publish Dates for MSPNs@MAX (GWP<>0/null)", {"MSPN", "Max Publish Date"}, "Latest GWP Dates for MSPNs in Kelvin", JoinKind.Inner),
+				    #"Added Custom" = Table.AddColumn(#"Merged Queries", "kgCO2e/unit", each try if [Amount] = null or [Amount] = 0 then null else [kgCO2e]/[Amount] otherwise null, type number),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Added Custom",{"BOM", "Tier", "ParentMSPN", "MSPN", "kgCO2e/unit", "PublishDate"}),
+				    #"Rounded Off" = Table.TransformColumns(#"Removed Other Columns",{{"kgCO2e/unit", each Number.Round(_, 2), type number}}),
+				    #"Removed Dups [MSPN+GWP only]" = Table.Distinct(#"Rounded Off", {"MSPN", "kgCO2e/unit"}),
+				    #"Grouped Rows" = Table.Group(#"Removed Dups [MSPN+GWP only]", {"MSPN"}, {{"kgCO2e/unit.Max@Makersite", each List.Max([#"kgCO2e/unit"]), type number}}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Grouped Rows", {"MSPN"}, #"Dx-Part Att-GWPbyPart@NexusPPE", {"MSPN"}, "Dx-Nexus-GWPbyPart@NexusPPE", JoinKind.LeftOuter),
+				    #"Expanded Dx-Nexus-GWPbyPart@NexusPPE" = Table.ExpandTableColumn(#"Merged Queries1", "Dx-Nexus-GWPbyPart@NexusPPE", {"kgCO2e/unit", "MappingSource", "PublishDate"}, {"kgCO2e/unit@NexusPPE", "MappingSource@NexusPPE", "PublishDate@NexusPPE"}),
+				    #"Removed Other Columns1" = Table.SelectColumns(#"Expanded Dx-Nexus-GWPbyPart@NexusPPE",{"MSPN", "kgCO2e/unit.Max@Makersite", "kgCO2e/unit@NexusPPE", "MappingSource@NexusPPE"}),
+				    #"Added Custom1" = Table.AddColumn(#"Removed Other Columns1", "Makersite/Nexus", each if [#"kgCO2e/unit@NexusPPE"]=[#"kgCO2e/unit.Max@Makersite"] then 1 else if [#"kgCO2e/unit@NexusPPE"] = null or [#"kgCO2e/unit@NexusPPE"] = 0 then null else [#"kgCO2e/unit.Max@Makersite"]/[#"kgCO2e/unit@NexusPPE"] ,type number)
+				in
+				    #"Added Custom1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

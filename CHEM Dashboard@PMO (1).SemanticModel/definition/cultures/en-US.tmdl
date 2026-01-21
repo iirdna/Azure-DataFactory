@@ -1,0 +1,193 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "Version": "1.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "fleet_level_mspn_count__kgco2e.column2575_percentile": {
+			      "Binding": {
+			        "ConceptualEntity": "Fleet Level MSPN Count & kgCO2e",
+			        "ConceptualProperty": "25-75 Percentile?"
+			      },
+			      "State": "Generated"
+			    },
+			    "ms_vs_br_comp_at_mspn_level.partmspn": {
+			      "Binding": {
+			        "ConceptualEntity": "MS vs BR Comp at MSPN Level",
+			        "ConceptualProperty": "PartMSPN"
+			      },
+			      "State": "Generated"
+			    },
+			    "gwp_comparison_of_t0__t1_for_racksmax.gen": {
+			      "Binding": {
+			        "ConceptualEntity": "GWP Comparison of T0 & T1 for Racks@MAX",
+			        "ConceptualProperty": "Gen"
+			      },
+			      "State": "Generated"
+			    },
+			    "gwp_comparison_of_t0__t1_for_racksmax.racklabel": {
+			      "Binding": {
+			        "ConceptualEntity": "GWP Comparison of T0 & T1 for Racks@MAX",
+			        "ConceptualProperty": "RackLabel"
+			      },
+			      "State": "Generated"
+			    },
+			    "gwp_by_bom_breakdownnexus_ppe_in_pbook.rack_mspn": {
+			      "Binding": {
+			        "ConceptualEntity": "GWP by BOM Breakdown@Nexus PPE (In PBook)",
+			        "ConceptualProperty": "Rack MSPN"
+			      },
+			      "State": "Generated"
+			    },
+			    "gwp_by_bom_breakdownnexus_ppe_in_pbook.tier": {
+			      "Binding": {
+			        "ConceptualEntity": "GWP by BOM Breakdown@Nexus PPE (In PBook)",
+			        "ConceptualProperty": "Tier"
+			      },
+			      "State": "Generated"
+			    },
+			    "gwp_by_bom_breakdownnexus_ppe_in_pbook.rack_partlabel": {
+			      "Binding": {
+			        "ConceptualEntity": "GWP by BOM Breakdown@Nexus PPE (In PBook)",
+			        "ConceptualProperty": "Rack.PartLabel"
+			      },
+			      "State": "Generated"
+			    },
+			    "gwp_by_bom_breakdownnexus_ppe_in_pbook.rack_gen": {
+			      "Binding": {
+			        "ConceptualEntity": "GWP by BOM Breakdown@Nexus PPE (In PBook)",
+			        "ConceptualProperty": "Rack.Gen"
+			      },
+			      "State": "Generated"
+			    },
+			    "dxmsmakersite_exportsmax_sql_summary.publishdate": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-MS-Makersite Exports@MAX SQL Summary",
+			        "ConceptualProperty": "PublishDate"
+			      },
+			      "State": "Generated"
+			    },
+			    "dxchemipc_details_for_mspns_needing_chem.mpnpart_alias1pdm": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-CHEM-IPC Details for MSPNs Needing CHEM",
+			        "ConceptualProperty": "MPN@Part_Alias@1PDM"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpihwpo_vs_hwis_pivot.rack_assembly_type": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-HW#-PO vs HWIS [pivot]",
+			        "ConceptualProperty": "Rack Assembly Type"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpihwpo_vs_hwis_pivot.fiscal_year": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-HW#-PO vs HWIS [pivot]",
+			        "ConceptualProperty": "Fiscal Year"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpichemgwpbypartnexusppe.column2575_percentile": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-CHEM-GWPbyPart@NexusPPE",
+			        "ConceptualProperty": "25-75 Percentile?"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpichemgwpbypartnexusppe.partlabel": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-CHEM-GWPbyPart@NexusPPE",
+			        "ConceptualProperty": "PartLabel"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpichemgwpbypartnexusppe.avg_kgco2e_unit": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-CHEM-GWPbyPart@NexusPPE",
+			        "ConceptualProperty": "Avg kgCO2e/Unit"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpichemgwpbypartnexusppe.classpathitemtypeorig": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-CHEM-GWPbyPart@NexusPPE",
+			        "ConceptualProperty": "ClassPathItemTypeOrig"
+			      },
+			      "State": "Generated"
+			    },
+			    "kpichemgwpbypartnexusppe.emissionimpact": {
+			      "Binding": {
+			        "ConceptualEntity": "KPI-CHEM-GWPbyPart@NexusPPE",
+			        "ConceptualProperty": "EmissionImpact"
+			      },
+			      "State": "Generated"
+			    },
+			    "dxpolatest_fy25pospo_uatnexus_ppe_for_audit.kgco2e_unit": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]",
+			        "ConceptualProperty": "kgCO2e/unit"
+			      },
+			      "State": "Generated"
+			    },
+			    "dxpolatest_fy25pospo_uatnexus_ppe_for_audit.originalpolineitemnumbercustom": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]",
+			        "ConceptualProperty": "OriginalPOLineItemNumberCustom"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.characteristic_uom": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Characteristic.UOM"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.characteristic_valuetype": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Characteristic.ValueType"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.characteristic_label": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Characteristic.Label"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.char_label": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Char_Label"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.class_label": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Class.Label"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.char_valuetype": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Char_ValueType"
+			      },
+			      "State": "Generated"
+			    },
+			    "dx1pdmclass__char_combosonepdm.char_uom": {
+			      "Binding": {
+			        "ConceptualEntity": "Dx-Part Att-Class&Char@OnePDM",
+			        "ConceptualProperty": "Char_UOM"
+			      },
+			      "State": "Generated"
+			    }
+			  }
+			}
+		contentType: json
+

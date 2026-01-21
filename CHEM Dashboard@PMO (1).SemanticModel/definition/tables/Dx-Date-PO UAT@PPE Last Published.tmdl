@@ -1,0 +1,32 @@
+table 'Dx-Date-PO UAT@PPE Last Published'
+	lineageTag: f5b6ac03-6380-4b9f-81d5-87869feb6c1c
+
+	column TimeKey
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 54960778-0c76-4f0c-a0f2-4c2f77c03cb8
+		summarizeBy: none
+		sourceColumn: TimeKey
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Dx-Date-PO UAT@PPE Last Published' = m
+		mode: import
+		queryGroup: 'Last Refresh Dates'
+		source =
+				let
+				    Source = #"RQ, FY25 POs@PO UAT@Nexus PPE (ALL Timekeys)",
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"TimeKey"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns"),
+				    #"Sorted Rows" = Table.Sort(#"Removed Duplicates",{{"TimeKey", Order.Descending}}),
+				    #"Extracted Date" = Table.TransformColumns(#"Sorted Rows",{{"TimeKey", DateTime.Date, type date}}),
+				    #"Kept First Rows" = Table.FirstN(#"Extracted Date",1)
+				in
+				    #"Kept First Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

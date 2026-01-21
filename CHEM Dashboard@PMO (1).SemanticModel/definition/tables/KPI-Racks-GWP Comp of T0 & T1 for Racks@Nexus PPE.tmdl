@@ -1,0 +1,147 @@
+table 'KPI-Racks-GWP Comp of T0 & T1 for Racks@Nexus PPE'
+	lineageTag: 551d2cbd-af3c-4b8a-9155-ca49df8499b5
+
+	column 'Rack MSPN'
+		dataType: string
+		lineageTag: 78e6ba95-4ff9-4d1e-a257-1d72d9ab6a66
+		summarizeBy: none
+		sourceColumn: Rack MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassLabel
+		dataType: string
+		lineageTag: cf7b759d-2248-4006-ace5-2f5dced17641
+		summarizeBy: none
+		sourceColumn: ClassLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'In PBook?'
+		dataType: int64
+		formatString: 0
+		lineageTag: 655c5132-4976-403f-adbf-5937f51630ad
+		summarizeBy: none
+		sourceColumn: In PBook?
+
+		annotation SummarizationSetBy = User
+
+	column MappingSource
+		dataType: string
+		lineageTag: 1a2b9d15-28f0-4fdb-8a7f-3ce44c303776
+		summarizeBy: none
+		sourceColumn: MappingSource
+
+		annotation SummarizationSetBy = Automatic
+
+	column T0_kgCO2e
+		dataType: double
+		lineageTag: e4b266ac-8409-4faf-8e27-cef6adf45b10
+		summarizeBy: sum
+		sourceColumn: T0_kgCO2e
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column T1_kgCO2e
+		dataType: double
+		lineageTag: 4f90b530-22e1-49ab-bb27-eb63558e6bc5
+		summarizeBy: sum
+		sourceColumn: T1_kgCO2e
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'GWP Ratio [T1]/[T0]'
+		dataType: double
+		formatString: 0.00
+		lineageTag: bdeb05da-6c83-4937-b203-5c7e210359c6
+		summarizeBy: none
+		sourceColumn: GWP Ratio [T1]/[T0]
+
+		annotation SummarizationSetBy = User
+
+	column CompletenessScore
+		dataType: string
+		lineageTag: 44a6281f-5993-4135-a3b0-089c1ca8596c
+		summarizeBy: none
+		sourceColumn: CompletenessScore
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeploymentType
+		dataType: string
+		lineageTag: fcbd186e-6b18-4c5f-a84e-94f84a9f52db
+		summarizeBy: none
+		sourceColumn: DeploymentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Generation
+		dataType: string
+		lineageTag: e2f93d40-201d-44bb-a121-22f787e1868a
+		summarizeBy: none
+		sourceColumn: Generation
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProcessorType
+		dataType: string
+		lineageTag: 64e30ab5-d44b-4625-b646-7ad17b63254d
+		summarizeBy: none
+		sourceColumn: ProcessorType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Role
+		dataType: string
+		lineageTag: 6626ef0a-997f-4c48-bcea-90a629620e4e
+		summarizeBy: none
+		sourceColumn: Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subrole
+		dataType: string
+		lineageTag: 6b20164d-f265-4909-92d4-b149827084f9
+		summarizeBy: none
+		sourceColumn: Subrole
+
+		annotation SummarizationSetBy = Automatic
+
+	column SKUFamilyName
+		dataType: string
+		lineageTag: 3a34c747-2300-4fc6-a062-8fed799259c2
+		summarizeBy: none
+		sourceColumn: SKUFamilyName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'KPI-Racks-GWP Comp of T0 & T1 for Racks@Nexus PPE' = m
+		mode: import
+		queryGroup: 'QC.GWP Anomalies@PPE'
+		source =
+				let
+				    Source = #"RQ, Nexus PPE",
+				    HwCarbonEmissionsReport = Source{[Name="HwCarbonEmissionsReport"]}[Data],
+				    #"Filtered Rows" = Table.SelectRows(HwCarbonEmissionsReport, each ([Tier] = 0 or [Tier] = 1) and ([GWP_FossilPerUnit] <> 0) and ([GWP_FossilPerUnit] <> null) and ([Quantity] <> 0)),
+				    #"Added Custom" = Table.AddColumn(#"Filtered Rows", "kgCO2e", each [Quantity]*[GWP_FossilPerUnit]),
+				    #"Grouped Rows" = Table.Group(#"Added Custom", {"BOM", "Tier"}, {{"kgCO2e", each List.Sum([kgCO2e]), type nullable number}}),
+				    #"Pivoted Column" = Table.Pivot(Table.TransformColumnTypes(#"Grouped Rows", {{"Tier", type text}}, "en-US"), List.Distinct(Table.TransformColumnTypes(#"Grouped Rows", {{"Tier", type text}}, "en-US")[Tier]), "Tier", "kgCO2e", List.Sum),
+				    #"Added Custom1" = Table.AddColumn(#"Pivoted Column", "GWP Ratio [1]/[0]", each [1]/[0], Percentage.Type),
+				    #"Renamed Columns" = Table.RenameColumns(#"Added Custom1",{{"0", "T0 GWP"}, {"1", "T1 GWP"}, {"GWP Ratio [1]/[0]", "GWP Ratio [T1]/[T0]"}}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Renamed Columns", each ([#"GWP Ratio [T1]/[T0]"] <> null)),
+				    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows1", {"BOM"}, #"Rack Data@GWPReport@Nexus PPE (Only T0)", {"MSPN"}, "Rack Mapping Source (in PBook)", JoinKind.Inner),
+				    #"Expanded Rack Mapping Source (in PBook)" = Table.ExpandTableColumn(#"Merged Queries", "Rack Mapping Source (in PBook)", {"CompletenessScore", "DeploymentType", "Generation", "MappingSource", "ClassLabel", "ProcessorType", "Role", "SKUFamilyName", "Subrole"}, {"CompletenessScore", "DeploymentType", "Generation", "MappingSource", "ClassLabel", "ProcessorType", "Role", "SKUFamilyName", "Subrole"}),
+				    #"Added Custom2" = Table.AddColumn(#"Expanded Rack Mapping Source (in PBook)", "In PBook?", each if List.Contains(#"MSPNs@FY25PO UAT@Nexus PPE",[BOM]) then 1 else 0, Int64.Type),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Added Custom2",{"BOM", "ClassLabel", "In PBook?", "MappingSource", "T0 GWP", "T1 GWP", "GWP Ratio [T1]/[T0]", "CompletenessScore", "DeploymentType", "Generation", "ProcessorType", "Role", "Subrole", "SKUFamilyName"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Removed Other Columns",{{"BOM", "Rack MSPN"}, {"T0 GWP", "T0_kgCO2e"}, {"T1 GWP", "T1_kgCO2e"}})
+				in
+				    #"Renamed Columns1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

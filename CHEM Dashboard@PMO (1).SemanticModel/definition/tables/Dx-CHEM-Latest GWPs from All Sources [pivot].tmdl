@@ -1,0 +1,67 @@
+table 'Dx-CHEM-Latest GWPs from All Sources [pivot]'
+	lineageTag: 6cc4525c-cf8b-4e58-8766-07dc7fb64ff6
+
+	column MSPN
+		dataType: string
+		lineageTag: 7abe32fb-fbfc-4b02-a89f-ace6380b2179
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column SME
+		dataType: double
+		lineageTag: 3a4394ff-10ad-402e-ab52-bc9ef97ca29e
+		summarizeBy: none
+		sourceColumn: SME
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MS
+		dataType: double
+		lineageTag: 0d52d900-0b91-4fbb-bef7-db47bce9c7bd
+		summarizeBy: none
+		sourceColumn: MS
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PPE
+		dataType: double
+		lineageTag: c52cc510-ce9d-4e6b-98f1-fa6217fe7c31
+		summarizeBy: none
+		sourceColumn: PPE
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BR
+		dataType: double
+		lineageTag: 510dfa9d-7a3b-46fe-a197-c82a519afe10
+		summarizeBy: none
+		sourceColumn: BR
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Dx-CHEM-Latest GWPs from All Sources [pivot]' = m
+		mode: import
+		queryGroup: 'Latest CHEM Values from All Sources'
+		source =
+				let
+				    Source = #"Dx-CHEM-Latest GWPs from All Sources [FDT]",
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"MSPN", "kgCO2e/Unit", "DataSource"}),
+				    #"Pivoted Column" = Table.Pivot(#"Removed Other Columns", List.Distinct(#"Removed Other Columns"[DataSource]), "DataSource", "kgCO2e/Unit"),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Pivoted Column",{"MSPN", "SME", "MS", "PPE", "BR"})
+				in
+				    #"Reordered Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

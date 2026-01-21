@@ -1,0 +1,25 @@
+table 'Dx-Lists-Unique Parts Across All BOM Levels of PO MSPNs'
+	lineageTag: 845ce952-0c87-4abb-84ba-c9b76a19bb0a
+
+	column MSPN
+		dataType: string
+		lineageTag: df782606-b569-4407-b2a3-9061b3a140ce
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-Lists-Unique Parts Across All BOM Levels of PO MSPNs' = m
+		mode: import
+		queryGroup: 'PO Data+HW#'
+		source =
+				let
+				    Source = Table.Combine({#"MSPNs@FY25PO UAT+MRP", #"Parts from All Levels of BOMs for PO MSPNs (from Report@BR PRD)"}),
+				    #"Removed Duplicates" = Table.Distinct(Source)
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

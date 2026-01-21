@@ -1,0 +1,95 @@
+table 'Dx-Part Att-Class&Char@OnePDM'
+	lineageTag: 3e483f77-2c75-4e02-8cfb-ccbc1435d0e4
+
+	column ClassPath
+		dataType: string
+		lineageTag: 8879ccb6-dc2b-4684-b57c-7078c7f2dc57
+		summarizeBy: none
+		sourceColumn: ClassPath
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassLabel
+		dataType: string
+		lineageTag: 4e8a8032-edb3-4b72-bb94-0f1eb20c3bfc
+		summarizeBy: none
+		sourceColumn: ClassLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_1
+		dataType: string
+		lineageTag: 42fa2d8b-5acb-49e3-abbe-53357f6e8839
+		summarizeBy: none
+		sourceColumn: ClassPath_1
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_2
+		dataType: string
+		lineageTag: 318f49f5-b5f6-4db9-a8fb-bdf41a09b78a
+		summarizeBy: none
+		sourceColumn: ClassPath_2
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_3
+		dataType: string
+		lineageTag: d314b6d6-f5f8-4be6-ad88-977be34f950a
+		summarizeBy: none
+		sourceColumn: ClassPath_3
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_4
+		dataType: string
+		lineageTag: 9654b5d4-f6fd-48cb-b74f-484e162257e4
+		summarizeBy: none
+		sourceColumn: ClassPath_4
+
+		annotation SummarizationSetBy = Automatic
+
+	column Char_ValueType
+		dataType: string
+		lineageTag: 9efeb214-33da-454f-ac7b-2b77fc216e2a
+		summarizeBy: none
+		sourceColumn: Char_ValueType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Char_Label
+		dataType: string
+		lineageTag: cac39810-1c95-47c0-bbca-b18738ec2519
+		summarizeBy: none
+		sourceColumn: Char_Label
+
+		annotation SummarizationSetBy = Automatic
+
+	column Char_UOM
+		dataType: string
+		lineageTag: 3ea15b43-01d1-4067-ba38-887c4973d657
+		summarizeBy: none
+		sourceColumn: Char_UOM
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-Part Att-Class&Char@OnePDM' = m
+		mode: import
+		queryGroup: 'OnePDM Data'
+		source =
+				let
+				  Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd"),
+				    Data1 = Source{[Item="Innovator_Item_Class_Characteristic"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(Data1,{{"id", "CLASS_CHAR_ID"}, {"SOURCE_ID", "CLASS_ID"}, {"RELATED_ID", "CHAR_ID"}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Renamed Columns", {"CLASS_ID"}, #"Dx-Part Att-ClassMaster@OnePDM", {"CLASS_ID"}, "Data1", JoinKind.LeftOuter),
+				    #"Merged Queries1" = Table.NestedJoin(#"Merged Queries", {"CHAR_ID"}, #"CharacteristicMaster@OnePDM", {"Characteristic.ID"}, "OnePDM@MAXDWPRD (2)", JoinKind.LeftOuter),
+				    #"Expanded Data1" = Table.ExpandTableColumn(#"Merged Queries1", "Data1", {"CLASS_ITEM_CLASS_PATH", "CLASS_NAME", "ClassPath", "ClassLabel", "ClassPath_1", "ClassPath_2", "ClassPath_3", "ClassPath_4", "CLASS_SOURCING_CATEGORY", "CLASS_ExtractedDate"}, {"CLASS_ITEM_CLASS_PATH", "CLASS_NAME", "ClassPath", "ClassLabel", "ClassPath_1", "ClassPath_2", "ClassPath_3", "ClassPath_4", "CLASS_SOURCING_CATEGORY", "CLASS_ExtractedDate"}),
+				    #"Expanded OnePDM@MAXDWPRD (2)" = Table.ExpandTableColumn(#"Expanded Data1", "OnePDM@MAXDWPRD (2)", {"Characteristic.Label", "Characteristic.ValueType", "Characteristic.UOM"}, {"Char_Label", "Char_ValueType", "Char_UOM"}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Expanded OnePDM@MAXDWPRD (2)",{"ClassPath", "ClassLabel", "ClassPath_1", "ClassPath_2", "ClassPath_3", "ClassPath_4", "Char_ValueType", "Char_Label", "Char_UOM"})
+				in
+				    #"Removed Other Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

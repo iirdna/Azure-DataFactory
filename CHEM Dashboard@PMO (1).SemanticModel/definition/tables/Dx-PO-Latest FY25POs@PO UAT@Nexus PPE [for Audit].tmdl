@@ -1,0 +1,336 @@
+table 'Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]'
+	lineageTag: a66bd91d-4b81-4e95-b1cd-dd9c93fdc518
+
+	column FiscalYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 4797bd99-8ea4-4081-9d00-ee52b4541a98
+		summarizeBy: none
+		sourceColumn: FiscalYear
+
+		annotation SummarizationSetBy = User
+
+	column FiscalQuarter
+		dataType: string
+		lineageTag: f97214cf-9bc3-4b05-a698-cdfdefd8a0a2
+		summarizeBy: none
+		sourceColumn: FiscalQuarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column MSPN
+		dataType: string
+		lineageTag: 61583735-8e80-4c3d-adb9-5814d2ce8e91
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column POLineQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: ecdea69c-f32a-471d-b39c-8d729ea9c01b
+		summarizeBy: sum
+		sourceColumn: POLineQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e/unit
+		dataType: double
+		lineageTag: c053c19c-3f7a-4bbf-a274-a4bebbfda220
+		summarizeBy: none
+		sourceColumn: kgCO2e/unit
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MTCO2e_CHEM
+		dataType: double
+		lineageTag: edbbfc0c-967c-40aa-8bcc-4163117d5bad
+		summarizeBy: sum
+		sourceColumn: MTCO2e_CHEM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MTCO2e_Spend
+		dataType: double
+		lineageTag: 9ea27059-2689-4369-aa9f-7c269329c7b2
+		summarizeBy: sum
+		sourceColumn: MTCO2e_Spend
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CHEMMethodology
+		dataType: string
+		lineageTag: 550a51b9-c965-4f08-914c-96bd7769f698
+		summarizeBy: none
+		sourceColumn: CHEMMethodology
+
+		annotation SummarizationSetBy = Automatic
+
+	column RackConfidenceScore
+		dataType: double
+		formatString: 0.00
+		lineageTag: ea77d56c-3e5e-4e6d-ac5f-d5a1bf8777b6
+		summarizeBy: none
+		sourceColumn: RackConfidenceScore
+
+		annotation SummarizationSetBy = User
+
+	column OriginalPONumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 69193bdc-5bc6-4db7-bd0d-e702f834da79
+		summarizeBy: none
+		sourceColumn: OriginalPONumber
+
+		annotation SummarizationSetBy = User
+
+	column PONumberUpdated
+		dataType: string
+		lineageTag: fcdcde8b-254e-4895-8ec0-25db1215b2c8
+		summarizeBy: none
+		sourceColumn: PONumberUpdated
+
+		annotation SummarizationSetBy = Automatic
+
+	column OriginalPOLineItemNumberCustom
+		dataType: int64
+		formatString: 0
+		lineageTag: 66967306-814a-4ac2-8113-17ad231a47f7
+		summarizeBy: none
+		sourceColumn: OriginalPOLineItemNumberCustom
+
+		annotation SummarizationSetBy = User
+
+	column POTitle
+		dataType: string
+		lineageTag: f25919b4-5a3c-4614-b5e2-3097d841d177
+		summarizeBy: none
+		sourceColumn: POTitle
+
+		annotation SummarizationSetBy = Automatic
+
+	column PODescription
+		dataType: string
+		lineageTag: b3de1850-8c82-49ee-99da-41abb16b26d9
+		summarizeBy: none
+		sourceColumn: PODescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column LineItemDescription
+		dataType: string
+		lineageTag: 86ebb858-c91e-4acb-b250-7f601d732ec5
+		summarizeBy: none
+		sourceColumn: LineItemDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column MSFriendlyName
+		dataType: string
+		lineageTag: 7212e157-5c0b-4704-ba3e-c7cce98a85d8
+		summarizeBy: none
+		sourceColumn: MSFriendlyName
+
+		annotation SummarizationSetBy = Automatic
+
+	column MsfId
+		dataType: string
+		lineageTag: 84c4a22c-4c83-4fba-b28d-a2252a517bfc
+		summarizeBy: none
+		sourceColumn: MsfId
+
+		annotation SummarizationSetBy = Automatic
+
+	column POLineReceivedQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: e31fed6c-5fc7-46a6-8169-2077376b43cb
+		summarizeBy: sum
+		sourceColumn: POLineReceivedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column POLineShippedQuantity
+		dataType: double
+		lineageTag: 8faac0b0-aa55-4a8d-ad18-6100ccd9eb34
+		summarizeBy: sum
+		sourceColumn: POLineShippedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ExecOrgSummary
+		dataType: string
+		lineageTag: 3a0e8a28-ebfd-4b9a-9663-c69e7e1a199f
+		summarizeBy: none
+		sourceColumn: ExecOrgSummary
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCloudAndAI
+		dataType: string
+		lineageTag: 56f7acef-0770-42c3-b4da-f311769c3389
+		summarizeBy: none
+		sourceColumn: IsCloudAndAI
+
+		annotation SummarizationSetBy = Automatic
+
+	column POStatus
+		dataType: string
+		lineageTag: e687223c-bc8c-45bd-98f9-eb7faff79b23
+		summarizeBy: none
+		sourceColumn: POStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column POLineStatus
+		dataType: string
+		lineageTag: 8125b335-16f6-4881-bb5e-3d52e24738d0
+		summarizeBy: none
+		sourceColumn: POLineStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column RequisitionClass
+		dataType: string
+		lineageTag: 5c53bcfd-ccc6-4a5d-8ada-5d945bf4c76c
+		summarizeBy: none
+		sourceColumn: RequisitionClass
+
+		annotation SummarizationSetBy = Automatic
+
+	column CDPUVPFlag
+		dataType: string
+		lineageTag: 5407738e-e15f-4ab9-8c22-64e2194b27a7
+		summarizeBy: none
+		sourceColumn: CDPUVPFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column PaymentCategoryGroup
+		dataType: string
+		lineageTag: 8d315654-65fb-4d67-8f7d-90eb9a91559e
+		summarizeBy: none
+		sourceColumn: PaymentCategoryGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column Commodity
+		dataType: string
+		lineageTag: cb89b11f-e744-400a-a69a-a734e631ce2b
+		summarizeBy: none
+		sourceColumn: Commodity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Account
+		dataType: string
+		lineageTag: d80da68a-715a-464c-a8f2-a135ef500987
+		summarizeBy: none
+		sourceColumn: Account
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISOCurrencyCode
+		dataType: string
+		lineageTag: 0132d081-4d00-491d-bc5e-c4283f8d063b
+		summarizeBy: none
+		sourceColumn: ISOCurrencyCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column DefraCategory
+		dataType: string
+		lineageTag: 43e91fcc-a412-41b4-985a-90bc5a11e8ce
+		summarizeBy: none
+		sourceColumn: DefraCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column Scope3Category
+		dataType: string
+		lineageTag: ebcdc998-2cec-48a5-b919-5b985626e75a
+		summarizeBy: none
+		sourceColumn: Scope3Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column SupplierType
+		dataType: string
+		lineageTag: 3d5a9dc2-1a57-45d4-8426-5c5f03c83b16
+		summarizeBy: none
+		sourceColumn: SupplierType
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimateSupplierParent
+		dataType: string
+		lineageTag: 99a459a4-be69-47aa-9a0e-c7eeaddaf936
+		summarizeBy: none
+		sourceColumn: UltimateSupplierParent
+
+		annotation SummarizationSetBy = Automatic
+
+	column RequisitionSubClass
+		dataType: string
+		lineageTag: a2eb7267-7179-4a0a-b7d6-7e0b451917b1
+		summarizeBy: none
+		sourceColumn: RequisitionSubClass
+
+		annotation SummarizationSetBy = Automatic
+
+	column RequisitionType
+		dataType: string
+		lineageTag: a8992b9c-50e4-4c9b-ade2-0e9f301a1fed
+		summarizeBy: none
+		sourceColumn: RequisitionType
+
+		annotation SummarizationSetBy = Automatic
+
+	column STDCategoryGroup
+		dataType: string
+		lineageTag: c3784dad-0378-40f7-a494-8ab64de8c8f5
+		summarizeBy: none
+		sourceColumn: STDCategoryGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column STDCategoryName
+		dataType: string
+		lineageTag: 43fea524-1361-4dd6-a5b3-59fdb8e904a1
+		summarizeBy: none
+		sourceColumn: STDCategoryName
+
+		annotation SummarizationSetBy = Automatic
+
+	column STDCategoryInference
+		dataType: string
+		lineageTag: 90bee004-02ba-461e-b1de-72679459d3f0
+		summarizeBy: none
+		sourceColumn: STDCategoryInference
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]' = m
+		mode: import
+		queryGroup: 'PO Data+HW#'
+		source =
+				let
+				    Source = #"RQ, FY25 POs@PO UAT@Nexus PPE (ALL Timekeys)",
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([TimeKey] = #"Latest TimeKey for PO UAT@Nexus PPE")),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows",{"FiscalYear", "FiscalQuarter", "MSPN", "POLineQuantity", "kgCO2e/unit", "MTCO2e_CHEM", "MTCO2e_Spend", "CHEMMethodology", "RackConfidenceScore", "OriginalPONumber", "PONumberUpdated", "OriginalPOLineItemNumberCustom", "POTitle", "PODescription", "LineItemDescription", "MSFriendlyName", "MsfId", "POLineReceivedQuantity", "POLineShippedQuantity", "ExecOrgSummary", "IsCloudAndAI", "POStatus", "POLineStatus", "RequisitionClass", "CDPUVPFlag", "PaymentCategoryGroup", "Commodity", "Account", "ISOCurrencyCode", "DefraCategory", "Scope3Category", "SupplierType", "UltimateSupplierParent", "RequisitionSubClass", "RequisitionType", "STDCategoryGroup", "STDCategoryName", "STDCategoryInference"})
+				in
+				    #"Removed Other Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

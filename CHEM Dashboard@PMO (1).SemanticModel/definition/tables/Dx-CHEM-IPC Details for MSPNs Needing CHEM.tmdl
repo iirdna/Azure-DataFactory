@@ -1,0 +1,107 @@
+table 'Dx-CHEM-IPC Details for MSPNs Needing CHEM'
+	lineageTag: 30619d22-18d2-4f79-8265-e04e0f212e50
+
+	column MSPN
+		dataType: string
+		lineageTag: 1445bede-65d4-48c5-a501-9a5f9f024b58
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartName
+		dataType: string
+		lineageTag: 12de4005-2e47-4fbe-87b9-1e426673f91d
+		summarizeBy: none
+		sourceColumn: PartName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPathItemType
+		dataType: string
+		lineageTag: dc5f0060-5f84-4f5a-8125-0321042b9691
+		summarizeBy: none
+		sourceColumn: ClassPathItemType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartLabel
+		dataType: string
+		lineageTag: 24e9a540-27ef-402a-9bf0-b5f9d3afbec8
+		summarizeBy: none
+		sourceColumn: PartLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column MPN@Part_Alias@1PDM
+		dataType: string
+		lineageTag: c8bcfc79-a12f-4ace-86c5-821efbd959a4
+		summarizeBy: none
+		sourceColumn: MPN@Part_Alias@1PDM
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manufacturer
+		dataType: string
+		lineageTag: 29695578-9c25-40ea-998c-845c3a810b2a
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation SummarizationSetBy = Automatic
+
+	column SAP_ID
+		dataType: string
+		lineageTag: b5e0f707-1831-487a-8447-1a78e08ae02f
+		summarizeBy: none
+		sourceColumn: SAP_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IPC Filename'
+		dataType: string
+		lineageTag: 3f20c202-5546-4f2f-8ca8-e58dcace82c6
+		summarizeBy: none
+		sourceColumn: IPC Filename
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IPC File#' =
+			CALCULATE(
+			                COUNTROWS('Dx-CHEM-IPC Details for MSPNs Needing CHEM'),
+			                FILTER(
+			                    'Dx-CHEM-IPC Details for MSPNs Needing CHEM',
+			                    'Dx-CHEM-IPC Details for MSPNs Needing CHEM'[MSPN] = EARLIER('Dx-CHEM-IPC Details for MSPNs Needing CHEM'[MSPN]) && [IPC Filename] <>""
+			                  )
+			            )
+		formatString: 0
+		lineageTag: 117decb0-8460-4a68-9c7f-9505d32ef76a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-CHEM-IPC Details for MSPNs Needing CHEM' = m
+		mode: import
+		queryGroup: 'MSPNs Needing CHEM Across All BOM Levels of PO MSPNs'
+		source =
+				let
+				    Source = #"KPI-CHEM-Gap, BOM Parts of PO MSPNs w/o CHEM (vs Latest CHEMs)",
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([#"Need CHEM?"] = 1)),
+				    #"Merged Queries0" = Table.NestedJoin(#"Filtered Rows", {"MSPN"}, #"Parts@OnePDM", {"ITEM_NUMBER"}, "Part", JoinKind.LeftOuter),
+				    #"Expanded Part0" = Table.ExpandTableColumn(#"Merged Queries0", "Part", {"PART_ID"}, {"PartID"}),
+				    #"Merged Queries" = Table.NestedJoin(#"Expanded Part0", {"PartID"}, #"Part_Alias@OnePDM", {"Part_ID (Source_ID)"}, "Part_Alias", JoinKind.LeftOuter),
+				    #"Expanded Part_Alias" = Table.ExpandTableColumn(#"Merged Queries", "Part_Alias", {"MPN_ID (RELATED_ID)"}, {"MPN_ID (RELATED_ID)"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded Part_Alias", {"MPN_ID (RELATED_ID)"}, #"Manufacturer_Part@OnePDM", {"MPN_ID"}, "Manufacturer_Part", JoinKind.LeftOuter),
+				    #"Expanded Manufacturer_Part" = Table.ExpandTableColumn(#"Merged Queries1", "Manufacturer_Part", {"ITEM_NUMBER", "MANUFACTURER"}, {"MPN", "MANUFACTURER"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Expanded Manufacturer_Part", {"MANUFACTURER"}, #"Manufacturer@OnePDM", {"Manufacturer_ID"}, "Manufacturer.1", JoinKind.LeftOuter),
+				    #"Expanded Manufacturer.1" = Table.ExpandTableColumn(#"Merged Queries2", "Manufacturer.1", {"NAME", "SAP_ID"}, {"NAME", "SAP_ID"}),
+				    #"Merged Queries3" = Table.NestedJoin(#"Expanded Manufacturer.1", {"MPN"}, #"ipcFileMapping@OnePDM", {"MPN"}, "ipcFileMapping", JoinKind.LeftOuter),
+				    #"Expanded ipcFileMapping" = Table.ExpandTableColumn(#"Merged Queries3", "ipcFileMapping", {"filename"}, {"filename"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Expanded ipcFileMapping",{{"MPN", "MPN@Part_Alias@1PDM"}, {"NAME", "Manufacturer"}, {"filename", "IPC Filename"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns",{"PartID", "MPN_ID (RELATED_ID)", "MANUFACTURER", "kgCO2e/unit", "IsParentInGWPreport@NexusPPE", "ZeroPartTypeImpact", "ZeroCHEMneedsToBeFixed", "Need CHEM?"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

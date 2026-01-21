@@ -1,0 +1,66 @@
+table 'KPI-HW#-PO vs HWIS [pivot]'
+	lineageTag: 70d80719-9074-4c3d-a284-c69f60956416
+
+	column 'Fiscal Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 3a2cf889-1e9c-4d9e-8871-a1346adbd567
+		summarizeBy: none
+		sourceColumn: Fiscal Year
+
+		annotation SummarizationSetBy = User
+
+	column 'Rack Assembly Type'
+		dataType: string
+		lineageTag: cd769888-9c9d-4ab2-ac1a-1ed1c54be65d
+		summarizeBy: none
+		sourceColumn: Rack Assembly Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Count@HWIS
+		dataType: int64
+		formatString: #,0
+		lineageTag: 44f6aa28-bfb0-40cb-ac42-ce241d323ddf
+		summarizeBy: sum
+		sourceColumn: Count@HWIS
+
+		annotation SummarizationSetBy = Automatic
+
+	column Count@UAT
+		dataType: int64
+		formatString: #,0
+		lineageTag: b9aa480b-d6f1-40ef-af9c-0f7553234c6a
+		summarizeBy: sum
+		sourceColumn: Count@UAT
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Diff (HWIS-UAT)'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 378e85ad-f6ef-49cd-8b06-edcf1217245d
+		summarizeBy: sum
+		sourceColumn: Diff (HWIS-UAT)
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'KPI-HW#-PO vs HWIS [pivot]' = m
+		mode: import
+		queryGroup: 'QC.HW# (PO vs HWIS)'
+		source =
+				let
+				    Source = Table.NestedJoin(#"FY20-25 HWCount by Selected Class & Yr@HWInv", {"FY", "ClassPath"}, #"FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT", {"FY", "ClassPath"}, "FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT", JoinKind.LeftOuter),
+				    #"Expanded FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT" = Table.ExpandTableColumn(Source, "FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT", {"Count"}, {"Count@UAT"}),
+				    #"Split Column by Delimiter" = Table.SplitColumn(#"Expanded FY20-25 HWCount by Selected Class & Yr@CHEM & FY25PO UAT", "ClassPath", Splitter.SplitTextByEachDelimiter({"/"}, QuoteStyle.Csv, true), {"ClassPathItemType.1", "ClassLabel"}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Split Column by Delimiter",{"FY", "ClassLabel", "Count", "Count@UAT"}),
+				    #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "Diff (HWIS-UAT)", each [Count]-[#"Count@UAT"], Int64.Type),
+				    #"Renamed Columns" = Table.RenameColumns(#"Added Custom",{{"FY", "Fiscal Year"}, {"ClassLabel", "Rack Assembly Type"}, {"Count", "Count@HWIS"}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Renamed Columns"," Rack Assembly","",Replacer.ReplaceText,{"Rack Assembly Type"})
+				in
+				    #"Replaced Value"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

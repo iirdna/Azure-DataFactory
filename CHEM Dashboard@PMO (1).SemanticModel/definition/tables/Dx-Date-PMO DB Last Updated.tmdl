@@ -1,0 +1,27 @@
+table 'Dx-Date-PMO DB Last Updated'
+	lineageTag: 2ee6fed6-5aad-4562-b1ab-9b071d4583d7
+
+	column 'Last Updated'
+		dataType: string
+		lineageTag: e9797e90-4cd2-4c89-82c2-5fe018707b9a
+		summarizeBy: none
+		sourceColumn: Last Updated
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dx-Date-PMO DB Last Updated' = m
+		mode: import
+		queryGroup: 'Last Refresh Dates'
+		source = ```
+				let 
+				   Source = DateTime.From(DateTime.LocalNow()),
+				    #"Converted to Table" = #table(1, {{Source}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table",{{"Column1", "Last Updated"}})
+				in
+				    #"Renamed Columns"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

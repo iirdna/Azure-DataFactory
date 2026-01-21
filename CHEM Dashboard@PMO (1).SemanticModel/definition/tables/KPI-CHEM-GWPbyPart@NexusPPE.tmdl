@@ -1,0 +1,316 @@
+table KPI-CHEM-GWPbyPart@NexusPPE
+	lineageTag: 88cf8da4-5e34-48e9-a730-9cefeaa9ca64
+
+	column MSPN
+		dataType: string
+		lineageTag: f0e40f2f-2f93-47ec-ac78-77a98b17d54c
+		summarizeBy: none
+		sourceColumn: MSPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column kgCO2e/Unit
+		dataType: double
+		lineageTag: 0420067c-8a30-4ba8-a548-1003c22028ed
+		summarizeBy: none
+		sourceColumn: kgCO2e/Unit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MappingSource
+		dataType: string
+		lineageTag: b8f95e8e-f383-45db-8db2-1c6b1860daef
+		summarizeBy: none
+		sourceColumn: MappingSource
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MSPN Count'
+		dataType: int64
+		formatString: 0
+		lineageTag: a81f3937-37ed-4ff8-9651-1e4e26e17b1c
+		summarizeBy: none
+		sourceColumn: MSPN Count
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Avg kgCO2e/Unit'
+		dataType: double
+		lineageTag: e520ed31-36f7-41cc-8d59-4eb2d6dbc985
+		summarizeBy: none
+		sourceColumn: Avg kgCO2e/Unit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'STDev GWP'
+		dataType: double
+		lineageTag: 8b17bacd-82d7-4206-9fae-09b0a9396ee7
+		summarizeBy: none
+		sourceColumn: STDev GWP
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '25% Percentile'
+		dataType: double
+		lineageTag: ee0d6d26-a663-47f7-a54c-950c65f2e52f
+		summarizeBy: none
+		sourceColumn: 25% Percentile
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '75% Percentile'
+		dataType: double
+		lineageTag: ac8076cb-b5f1-437f-91a2-0e70ad474d36
+		summarizeBy: none
+		sourceColumn: 75% Percentile
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '25-75 Percentile?'
+		dataType: int64
+		formatString: 0
+		lineageTag: 10c7ecd0-abd7-44ee-9ae1-b11b0fbe98a4
+		summarizeBy: none
+		sourceColumn: 25-75 Percentile?
+
+		annotation SummarizationSetBy = Automatic
+
+	column zScore
+		dataType: double
+		lineageTag: 0f450a0b-519c-4592-bf9c-764ad21e9403
+		summarizeBy: none
+		sourceColumn: zScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PublishDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b6759768-16e5-41c9-b786-decd8b2c7317
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EmissionImpact
+		dataType: string
+		lineageTag: 2028e1af-68ad-4f87-a458-db87660218fb
+		summarizeBy: none
+		sourceColumn: EmissionImpact
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassLabel
+		dataType: string
+		lineageTag: 09192e7d-86c2-4b84-a930-4f19c00867e3
+		summarizeBy: none
+		sourceColumn: ClassLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath
+		dataType: string
+		lineageTag: 0ea6d862-b224-4964-8053-f81d10d732d6
+		summarizeBy: none
+		sourceColumn: ClassPath
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeploymentType
+		dataType: string
+		lineageTag: da7f362b-9ec2-4a50-b237-42059b419053
+		summarizeBy: none
+		sourceColumn: DeploymentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Role
+		dataType: string
+		lineageTag: 29e4384f-8860-469e-9134-8fcfad83291b
+		summarizeBy: none
+		sourceColumn: Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subrole
+		dataType: string
+		lineageTag: 84f92ee9-2ed8-4375-bc61-a6740e8b1df8
+		summarizeBy: none
+		sourceColumn: Subrole
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProcessorType
+		dataType: string
+		lineageTag: 689ff61a-a520-4d2a-80bd-251b5e6e5236
+		summarizeBy: none
+		sourceColumn: ProcessorType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartType
+		dataType: string
+		lineageTag: 636c3345-13d1-49d5-974a-66518b284340
+		summarizeBy: none
+		sourceColumn: PartType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cores
+		dataType: double
+		lineageTag: de8d9cea-9acc-4f01-98c7-c93a1fd77d69
+		summarizeBy: none
+		sourceColumn: Cores
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column StorageCapacity
+		dataType: double
+		lineageTag: 5daeb639-032c-4206-adf4-91b7f9286809
+		summarizeBy: none
+		sourceColumn: StorageCapacity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DateId
+		dataType: string
+		lineageTag: 6d2e9105-d0cd-4a7e-974c-2753301bb4b6
+		summarizeBy: none
+		sourceColumn: DateId
+
+		annotation SummarizationSetBy = Automatic
+
+	column StorageCapacityUnit
+		dataType: string
+		lineageTag: f8dd2764-8170-40c7-b542-b026209b973d
+		summarizeBy: none
+		sourceColumn: StorageCapacityUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column PowerLoadFifty
+		dataType: double
+		lineageTag: 5ae39b9a-df4e-4344-af2b-0510125fef4f
+		summarizeBy: none
+		sourceColumn: PowerLoadFifty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PartName
+		dataType: string
+		lineageTag: 029c6dca-5e72-4bb3-af22-60cf689fa79b
+		summarizeBy: none
+		sourceColumn: PartName
+
+		annotation SummarizationSetBy = Automatic
+
+	column MPN
+		dataType: string
+		lineageTag: d0b344d7-4989-416c-ae04-031eaf974e3c
+		summarizeBy: none
+		sourceColumn: MPN
+
+		annotation SummarizationSetBy = Automatic
+
+	column MPNRevisionNumber
+		dataType: string
+		lineageTag: 66ecbb74-5def-4d7f-9afe-86c100cf9686
+		summarizeBy: none
+		sourceColumn: MPNRevisionNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaturityLevel
+		dataType: string
+		lineageTag: 2ef3fcef-fcec-4455-bb02-ad96b7648a78
+		summarizeBy: none
+		sourceColumn: MaturityLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column PartManufacturers
+		dataType: string
+		lineageTag: 5ed45938-b099-4b91-a159-42052e833d19
+		summarizeBy: none
+		sourceColumn: PartManufacturers
+
+		annotation SummarizationSetBy = Automatic
+
+	column CompletenessScore
+		dataType: double
+		lineageTag: facc1d2b-ea4c-4002-acfa-ca8a8cc448fd
+		summarizeBy: none
+		sourceColumn: CompletenessScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Generation
+		dataType: string
+		lineageTag: 635a00ea-8346-46a9-b3c4-5dfea4b0673c
+		summarizeBy: none
+		sourceColumn: Generation
+
+		annotation SummarizationSetBy = Automatic
+
+	column SKUFamilyName
+		dataType: string
+		lineageTag: 44493e7c-2bec-4e36-83ac-695d0aaf2f28
+		summarizeBy: none
+		sourceColumn: SKUFamilyName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Rack?'
+		dataType: int64
+		formatString: 0
+		lineageTag: 1afff646-1b27-4b76-ac20-e9d56c024484
+		summarizeBy: none
+		sourceColumn: Is Rack?
+
+		annotation SummarizationSetBy = Automatic
+
+	partition KPI-CHEM-GWPbyPart@NexusPPE = m
+		mode: import
+		queryGroup: 'QC.HW# (PO vs HWIS)'
+		source =
+				let
+				    Source = #"Dx-Part Att-GWPbyPart@NexusPPE",
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([#"kgCO2e/Unit"] <> null and [#"kgCO2e/Unit"] <> 0)),
+				    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"ClassPath"}, #"Dx-Summary Stats-PartGWP@Nexus PPE", {"ClassPath"}, "GWP by Part@Nexus, Summary by Part Label", JoinKind.LeftOuter),
+				    #"Expanded GWP by Part@Nexus, Summary by Part Label" = Table.ExpandTableColumn(#"Merged Queries", "GWP by Part@Nexus, Summary by Part Label", {"MSPN Count", "Avg kgCO2e/Unit", "STDev GWP", "25% Percentile", "75% Percentile"}, {"MSPN Count", "Avg kgCO2e/Unit", "STDev GWP", "25% Percentile", "75% Percentile"}),
+				    #"Added Custom" = Table.AddColumn(#"Expanded GWP by Part@Nexus, Summary by Part Label", "25-75 Percentile?", each if [#"kgCO2e/Unit"]>=[#"25% Percentile"] and [#"kgCO2e/Unit"] <= [#"75% Percentile"] then 1 else 0, Int64.Type),
+				    #"Added Custom1" = Table.AddColumn(#"Added Custom", "zScore", each if [STDev GWP] = 0 or [STDev GWP] = null then null else ([#"kgCO2e/Unit"]-[#"Avg kgCO2e/Unit"])/[STDev GWP], type number),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Added Custom1",{"MSPN", "kgCO2e/Unit", "MappingSource", "MSPN Count", "Avg kgCO2e/Unit", "STDev GWP", "25% Percentile", "75% Percentile", "25-75 Percentile?", "zScore", "PublishDate", "EmissionImpact", "ClassLabel", "ClassPath", "DeploymentType", "Role", "Subrole", "ProcessorType", "Cores", "StorageCapacity", "StorageCapacityUnit", "PowerLoadFifty", "PartName", "MPN", "MPNRevisionNumber", "MaturityLevel", "PartManufacturers"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Reordered Columns", {"MSPN"}, #"Rack Data@GWPReport@Nexus PPE (Only T0)", {"MSPN"}, "GWP Report@Nexus (Only T0)", JoinKind.LeftOuter),
+				    #"Expanded GWP Report@Nexus (Only T0)" = Table.ExpandTableColumn(#"Merged Queries1", "GWP Report@Nexus (Only T0)", {"RackCompletenessScore", "Generation", "SKUFamilyName"}, {"CompletenessScore", "Generation", "SKUFamilyName"}),
+				    #"Added Custom2" = Table.AddColumn(#"Expanded GWP Report@Nexus (Only T0)", "Is Rack?", each if Text.Contains([ClassLabel], "Rack Assembly") then 1 else 0, Int64.Type),
+				    #"Replaced Errors" = Table.ReplaceErrorValues(#"Added Custom2", {{"Is Rack?", 0}})
+				in
+				    #"Replaced Errors"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,76 @@
+table 'Dx-Summary Stats-PartGWP@Nexus PPE'
+	lineageTag: 4b062c38-e647-4068-8873-4df3dd8b97d3
+
+	column ClassPath
+		dataType: string
+		lineageTag: fa892770-c885-49d7-bf9d-3cf88ab648c6
+		summarizeBy: none
+		sourceColumn: ClassPath
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MSPN Count'
+		dataType: int64
+		formatString: 0
+		lineageTag: 425649a4-92c2-4fe2-a0ec-138e4c1960a2
+		summarizeBy: sum
+		sourceColumn: MSPN Count
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Avg kgCO2e/Unit'
+		dataType: double
+		lineageTag: e3d7db7a-0fca-40f5-aa0c-23cf633eeb6b
+		summarizeBy: none
+		sourceColumn: Avg kgCO2e/Unit
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'STDev GWP'
+		dataType: double
+		lineageTag: 950b5a15-cab3-4018-9184-b9ae091cbf7b
+		summarizeBy: none
+		sourceColumn: STDev GWP
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '25% Percentile'
+		dataType: double
+		lineageTag: 09b3b905-37e4-4772-86f4-68a788be8c26
+		summarizeBy: none
+		sourceColumn: 25% Percentile
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '75% Percentile'
+		dataType: double
+		lineageTag: 4cf17434-620b-4bd2-8974-c37d474c1744
+		summarizeBy: none
+		sourceColumn: 75% Percentile
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Dx-Summary Stats-PartGWP@Nexus PPE' = m
+		mode: import
+		queryGroup: 'Nexus+BR Data'
+		source =
+				let
+				    Source = #"Dx-Part Att-GWPbyPart@NexusPPE",
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([#"kgCO2e/Unit"] <> null and [#"kgCO2e/Unit"] <> 0)),
+				    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows",{{"kgCO2e/Unit", "GWP"}}),
+				    #"Grouped Rows" = Table.Group(#"Renamed Columns", {"ClassPath"}, {{"MSPN Count", each Table.RowCount(_), Int64.Type}, {"Avg kgCO2e/Unit", each List.Average([GWP]), type nullable number}, {"STDev GWP", each List.StandardDeviation([GWP]), type number}, {"25% Percentile", each List.Percentile([GWP], 0.25), type number}, {"75% Percentile", each List.Percentile([GWP],0.75), type number}})
+				in
+				    #"Grouped Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

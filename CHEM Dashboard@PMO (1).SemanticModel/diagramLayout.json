@@ -1,0 +1,381 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 3876.3830500146937,
+            "y": 75.5
+          },
+          "nodeIndex": "Dx-Summary Stats-PartGWP@Nexus PPE",
+          "nodeLineageTag": "4b062c38-e647-4068-8873-4df3dd8b97d3",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4650.3594360801353,
+            "y": 40.660202297104213
+          },
+          "nodeIndex": "Dx-PO-Latest FY25POs@PO UAT@Nexus PPE [for Audit]",
+          "nodeLineageTag": "a66bd91d-4b81-4e95-b1cd-dd9c93fdc518",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 684.74729825388226,
+            "y": 470.48452574617016
+          },
+          "nodeIndex": "Dx-CHEM-Latest GWPs from All Sources [FDT]",
+          "nodeLineageTag": "01f8fd1b-d507-4cac-892b-5ea8b452d9fe",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 334.20156119318517,
+            "y": 40.359587180246763
+          },
+          "nodeIndex": "Dx-CHEM-Latest GWPs from All Sources [pivot]",
+          "nodeLineageTag": "6cc4525c-cf8b-4e58-8766-07dc7fb64ff6",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1136.3830500146937,
+            "y": 123.5
+          },
+          "nodeIndex": "Dx-Date-GWPbyPart@PPE Last Published",
+          "nodeLineageTag": "503b3ff7-b730-4aa1-853c-97d05803edef",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1420.3830500146937,
+            "y": 123.5
+          },
+          "nodeIndex": "Dx-Date-Makersite@MAX Publish Dates",
+          "nodeLineageTag": "5d292041-c61c-41e7-b181-ea314e1767d8",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1704.3830500146937,
+            "y": 135.5
+          },
+          "nodeIndex": "Dx-Date-PMO DB Last Updated",
+          "nodeLineageTag": "2ee6fed6-5aad-4562-b1ab-9b071d4583d7",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1988.3830500146937,
+            "y": 135.5
+          },
+          "nodeIndex": "Dx-Date-PO UAT@PPE Last Published",
+          "nodeLineageTag": "f5b6ac03-6380-4b9f-81d5-87869feb6c1c",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 12.077572434749442,
+            "y": 222.7942619458471
+          },
+          "nodeIndex": "Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+          "nodeLineageTag": "42369812-8eaf-48b4-86b5-7cf5dec72f49",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2272.3830500146937,
+            "y": 123.5
+          },
+          "nodeIndex": "Dx-MS-Makersite Exports@MAX SQL Summary",
+          "nodeLineageTag": "c6abd845-49c6-429f-8e4d-09517d65662b",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4892.2599418228956,
+            "y": 357.1972964024103
+          },
+          "nodeIndex": "KPI-HW#-PO vs HWIS",
+          "nodeLineageTag": "e3303dde-9d4a-4555-bccc-572fc15c1142",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5149.9614590511774,
+            "y": 9.198988514478927
+          },
+          "nodeIndex": "KPI-CHEM-GWPbyPart@NexusPPE",
+          "nodeLineageTag": "88cf8da4-5e34-48e9-a730-9cefeaa9ca64",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4871.4454501666269,
+            "y": 626.45530084468533
+          },
+          "nodeIndex": "KPI-HW#-PO vs HWIS [pivot]",
+          "nodeLineageTag": "70d80719-9074-4c3d-a284-c69f60956416",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5230.2734409022441,
+            "y": 524.73186179391371
+          },
+          "nodeIndex": "KPI-CHEM-Gap, BOM Parts of PO MSPNs w/o CHEM (vs Latest CHEMs)",
+          "nodeLineageTag": "9a07d46d-0479-41dc-bdf4-c88055ef8b17",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5640.6815327864124,
+            "y": 573.714997399029
+          },
+          "nodeIndex": "KPI-CHEM-Gap, PO MSPNs w/o CHEM (vs Latest CHEMs)",
+          "nodeLineageTag": "3a155049-6f84-4227-be94-b088dc67802d",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5898.3830500146942,
+            "y": 39
+          },
+          "nodeIndex": "Dx-CHEM-IPC Details for MSPNs Needing CHEM",
+          "nodeLineageTag": "30619d22-18d2-4f79-8265-e04e0f212e50",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6182.3830500146942,
+            "y": 25
+          },
+          "nodeIndex": "KPI-Racks-GWP Comp of T0 & T1 for Racks@Nexus PPE",
+          "nodeLineageTag": "551d2cbd-af3c-4b8a-9155-ca49df8499b5",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6416.3830500146942,
+            "y": 75
+          },
+          "nodeIndex": "KPI-CHEM-MAX vs Nexus",
+          "nodeLineageTag": "c357310e-5571-420d-aa33-ffbb5a54ab85",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6700.3830500146942,
+            "y": 25
+          },
+          "nodeIndex": "KPI-CHEM-MSPNs w Multi CHEMs (Latest Date for MSPN Only)",
+          "nodeLineageTag": "b9a1b4c3-856c-4348-81b2-d705cac09e9f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6934.3830500146942,
+            "y": 123
+          },
+          "nodeIndex": "Dx-Lists-Unique Parts Across All BOM Levels of PO MSPNs",
+          "nodeLineageTag": "845ce952-0c87-4abb-84ba-c9b76a19bb0a",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7168.3830500146942,
+            "y": 25
+          },
+          "nodeIndex": "Dx-Part Att-ClassMaster@OnePDM",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1095.9513820131679,
+            "y": 382.38447794960985
+          },
+          "nodeIndex": "Dx-Part Att-Class&Char@OnePDM",
+          "nodeLineageTag": "3e483f77-2c75-4e02-8cfb-ccbc1435d0e4",
+          "size": {
+            "height": 384.485664318918,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3308.3830500146937,
+            "y": 37.5
+          },
+          "nodeIndex": "Dx-Part Att-GWPbyPart@NexusPPE",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7402.3830500146942,
+            "y": 25
+          },
+          "nodeIndex": "Dx-PO-FY20 to 25 POs (MSPN+Class+Count+MTCO2e)@CHEM & PO UAT",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7636.3830500146942,
+            "y": 75
+          },
+          "nodeIndex": "Dx-HW#-Fleet Level",
+          "nodeLineageTag": "1575a674-e475-4871-a350-8db9d6631c72",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 844.48254427193308,
+            "y": 111.7984827717184
+          },
+          "nodeIndex": "Dx-Date-AssemblyFinal@BR Last Published",
+          "nodeLineageTag": "f20778e7-e8aa-4e4b-9282-237d253b7dcd",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3592.3830500146937,
+            "y": 37.5
+          },
+          "nodeIndex": "Dx-Part Att-HIP/LIP@BR",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 8672.3830500146942,
+            "y": 75
+          },
+          "nodeIndex": "DX-BOM Structure & Counts for PO25@BR",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 63.287087723234,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

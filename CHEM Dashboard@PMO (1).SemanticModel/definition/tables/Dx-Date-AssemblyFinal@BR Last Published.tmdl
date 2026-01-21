@@ -1,0 +1,34 @@
+table 'Dx-Date-AssemblyFinal@BR Last Published'
+	lineageTag: f20778e7-e8aa-4e4b-9282-237d253b7dcd
+
+	column LastPublished
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f0d6f15e-1efb-45fc-b911-1030e45cf247
+		summarizeBy: none
+		sourceColumn: LastPublished
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Dx-Date-AssemblyFinal@BR Last Published' = m
+		mode: import
+		queryGroup: 'Last Refresh Dates'
+		source =
+				let
+				    Source = #"RQ, BR PRD",
+				    AssemblyEmissions_Final = Source{[Name="AssemblyEmissions_Final"]}[Data],
+				    #"Split Column by Delimiter" = Table.SplitColumn(AssemblyEmissions_Final, "Published Date", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"Published Date.1", "Published Date.2", "Published Date.3"}),
+				    #"Added Custom" = Table.AddColumn(#"Split Column by Delimiter", "LastPublished", each Date.FromText([Published Date.2]&"/"&[Published Date.1]&"/"&[Published Date.3])),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom",{{"LastPublished", type date}}),
+				    #"Sorted Rows" = Table.Sort(#"Changed Type",{{"LastPublished", Order.Descending}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Sorted Rows",{"LastPublished"}),
+				    #"Kept First Rows" = Table.FirstN(#"Removed Other Columns",1)
+				in
+				    #"Kept First Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,115 @@
+table 'Dx-Part Att-ClassMaster@OnePDM'
+	lineageTag: b404bbdc-6daf-420f-b227-7dc09e147aa9
+
+	column CLASS_ID
+		dataType: string
+		lineageTag: d8af50f8-7953-476a-b860-e8e971149709
+		summarizeBy: none
+		sourceColumn: CLASS_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLASS_ITEM_CLASS_PATH
+		dataType: string
+		lineageTag: 9348f5f8-7507-4a87-a1bb-04a040cf4c87
+		summarizeBy: none
+		sourceColumn: CLASS_ITEM_CLASS_PATH
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLASS_NAME
+		dataType: string
+		lineageTag: a22aa85f-77e8-4ffb-8ae6-be9b3e5d64e0
+		summarizeBy: none
+		sourceColumn: CLASS_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath
+		dataType: string
+		lineageTag: 0bbdf595-5a64-4a5e-8aff-cbc7e88da081
+		summarizeBy: none
+		sourceColumn: ClassPath
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassLabel
+		dataType: string
+		lineageTag: ef1df64e-c151-4b26-ad46-ab582142042f
+		summarizeBy: none
+		sourceColumn: ClassLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_1
+		dataType: string
+		lineageTag: d09f7f18-c1bf-4283-b0ae-7df17efbe2e0
+		summarizeBy: none
+		sourceColumn: ClassPath_1
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_2
+		dataType: string
+		lineageTag: 0c32ed1f-a5b3-4af1-a809-28a1e8ec5c1f
+		summarizeBy: none
+		sourceColumn: ClassPath_2
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_3
+		dataType: string
+		lineageTag: 9df08371-be00-4063-b7d7-46e903e467e9
+		summarizeBy: none
+		sourceColumn: ClassPath_3
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassPath_4
+		dataType: string
+		lineageTag: 3d4ab539-90ee-47a2-8958-515abf289062
+		summarizeBy: none
+		sourceColumn: ClassPath_4
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLASS_SOURCING_CATEGORY
+		dataType: string
+		lineageTag: ae95671a-8a8d-4516-8030-8742fbb647ef
+		summarizeBy: none
+		sourceColumn: CLASS_SOURCING_CATEGORY
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLASS_ExtractedDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7e57a1a8-c488-4577-9436-2f8bf113895b
+		summarizeBy: none
+		sourceColumn: CLASS_ExtractedDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Dx-Part Att-ClassMaster@OnePDM' = m
+		mode: import
+		queryGroup: 'OnePDM Data'
+		source =
+				let
+				    Source = Sql.Database("maxsqldb.database.windows.net", "maxdwprd"),
+				    Data1 = Source{[Item="Innovator_Item_Class"]}[Data],
+				    #"Duplicated Column" = Table.DuplicateColumn(Data1, "ITEM_CLASS_PATH_LABEL", "ITEM_CLASS_PATH_LABEL2"),
+				    #"Replaced Value" = Table.ReplaceValue(#"Duplicated Column","/Part/","Part/",Replacer.ReplaceText,{"ITEM_CLASS_PATH_LABEL2"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","/Part","Part/",Replacer.ReplaceValue,{"ITEM_CLASS_PATH_LABEL2"}),
+				    #"Split Column by Delimiter" = Table.SplitColumn(#"Replaced Value1", "ITEM_CLASS_PATH_LABEL2", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"ITEM_CLASS_PATH_LABEL.1", "ITEM_CLASS_PATH_LABEL.2", "ITEM_CLASS_PATH_LABEL.3", "ITEM_CLASS_PATH_LABEL.4"}),
+				    #"Extracted Date" = Table.TransformColumns(#"Split Column by Delimiter",{{"extractdatetime", DateTime.Date, type date}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Extracted Date",{"id", "ITEM_CLASS_PATH", "NAME", "ITEM_CLASS_PATH_LABEL", "LABEL", "ITEM_CLASS_PATH_LABEL.1", "ITEM_CLASS_PATH_LABEL.2", "ITEM_CLASS_PATH_LABEL.3", "ITEM_CLASS_PATH_LABEL.4", "SOURCING_CATEGORY", "extractdatetime"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Other Columns",{{"id", "CLASS_ID"}, {"ITEM_CLASS_PATH", "CLASS_ITEM_CLASS_PATH"}, {"NAME", "CLASS_NAME"}, {"ITEM_CLASS_PATH_LABEL", "ClassPath"}, {"LABEL", "ClassLabel"}, {"ITEM_CLASS_PATH_LABEL.1", "ClassPath_1"}, {"ITEM_CLASS_PATH_LABEL.2", "ClassPath_2"}, {"ITEM_CLASS_PATH_LABEL.3", "ClassPath_3"}, {"ITEM_CLASS_PATH_LABEL.4", "ClassPath_4"}, {"SOURCING_CATEGORY", "CLASS_SOURCING_CATEGORY"}, {"extractdatetime", "CLASS_ExtractedDate"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

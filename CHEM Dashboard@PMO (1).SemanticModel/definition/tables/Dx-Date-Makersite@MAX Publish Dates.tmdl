@@ -1,0 +1,42 @@
+table 'Dx-Date-Makersite@MAX Publish Dates'
+	lineageTag: 5d292041-c61c-41e7-b181-ea314e1767d8
+
+	column PublishDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a8058e86-611e-4127-a704-fd15b6748b6a
+		summarizeBy: none
+		sourceColumn: PublishDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ADWLoadDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3cf54050-3cbf-4d18-b585-c1474f2d051a
+		summarizeBy: none
+		sourceColumn: ADWLoadDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Dx-Date-Makersite@MAX Publish Dates' = m
+		mode: import
+		queryGroup: 'Last Refresh Dates'
+		source =
+				let
+				    Source = #"Dx-MS-Makersite Exports@MAX SQL (IsLatest=Y, PublishedByPMO)",
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"PublishDate", "ADWLoadDate"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns",{{"PublishDate", type date}, {"ADWLoadDate", type date}}),
+				    #"Removed Duplicates" = Table.Distinct(#"Changed Type"),
+				    #"Sorted Rows" = Table.Sort(#"Removed Duplicates",{{"PublishDate", Order.Descending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
